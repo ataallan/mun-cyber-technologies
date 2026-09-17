@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Set up authenticator app multi-factor authentication for your MUN Cyber Technologies account.">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <title>Set up MFA | MUN Cyber Technologies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .mfa-qr-wrap { display: flex; justify-content: center; margin: 1rem 0 1.25rem; }
+    .mfa-qr-wrap img { border-radius: 8px; background: #fff; padding: 8px; max-width: 200px; height: auto; }
+    .mfa-secret-box {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      word-break: break-all;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      margin: 0.5rem 0 1rem;
+    }
+    .mfa-steps { margin: 0 0 1.25rem; padding-left: 1.25rem; color: rgba(255,255,255,0.78); }
+    .mfa-steps li { margin-bottom: 0.4rem; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary">
+      <a class="brand brand-logo" href="index.html" aria-label="MUN Cyber Technologies home">
+        <picture>
+          <source srcset="assets/mun-cyber-logo-mark.webp" type="image/webp">
+          <img src="assets/mun-cyber-logo-mark.png" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" class="header-logo" width="220" height="74">
+        </picture>
+      </a>
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="primary-nav">☰</button>
+      <div id="primary-nav" class="nav-links">
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="signup.html">Sign in</a>
+        <a class="nav-cta" href="contact.html">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="section auth-section" aria-label="Multi-factor authentication setup">
+      <div class="auth-shell">
+        <div class="auth-card">
+          <div class="auth-card-mark">
+            <picture>
+              <source srcset="assets/mun-cyber-logo-mark.webp" type="image/webp">
+              <img src="assets/mun-cyber-logo-mark.png" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" class="auth-logo" width="200" height="68">
+            </picture>
+          </div>
+          <h1 class="auth-title">Set up authenticator MFA</h1>
+          <p class="auth-lead">Protect your account with an authenticator app (Google Authenticator, Authy, 1Password, etc.). You must enable MFA before using the site as a signed-in user.</p>
+
+          <ol class="mfa-steps">
+            <li>Install an authenticator app if you do not have one.</li>
+            <li>Scan the QR code below, or enter the secret manually.</li>
+            <li>Enter the 6-digit code from the app and enable MFA.</li>
+          </ol>
+
+          <div class="mfa-qr-wrap">
+            <img id="mfa-qr" hidden width="200" height="200" alt="">
+          </div>
+
+          <p class="form-note">Manual secret (if you cannot scan):</p>
+          <p id="mfa-secret" class="mfa-secret-box" aria-live="polite">…</p>
+          <p><a id="mfa-otpauth-link" class="auth-switch-link" href="#">Open in authenticator app</a></p>
+
+          <form id="mfa-enable-form" class="contact-form" novalidate autocomplete="off">
+            <div class="field">
+              <label for="mfa-code">Authenticator code</label>
+              <input id="mfa-code" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required placeholder="6-digit code">
+            </div>
+            <button class="button primary block" type="submit">Enable MFA</button>
+            <p id="mfa-setup-status" class="form-status" role="status" aria-live="polite" hidden></p>
+          </form>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand footer-brand" href="index.html" aria-label="MUN Cyber Technologies home">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span><strong>MUN CYBER</strong><small>TECHNOLOGIES</small></span>
+        </a>
+        <p>Cybersecurity awareness, software development, and defensive cyber systems.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="signup.html">Sign in</a>
+        <a href="contact.html">Contact</a>
+        <a href="mailto:info@muncyber.com">info@muncyber.com</a>
+      </nav>
+    </div>
+    <div class="container copyright">© <span id="year"></span> MUN Cyber Technologies. All rights reserved.</div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+  <script src="js/auth.js" defer></script>
+</body>
+</html>

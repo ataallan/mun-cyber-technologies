@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Contact MUN Cyber Technologies at info@muncyber.com for cybersecurity, software, and defensive technology discussions.">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://www.muncyber.com/contact.html">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <title>Contact | MUN Cyber Technologies</title>
+  <meta property="og:title" content="Contact | MUN Cyber Technologies">
+  <meta property="og:description" content="Contact MUN Cyber Technologies at info@muncyber.com for cybersecurity, software, and defensive technology discussions.">
+  <meta property="og:url" content="https://www.muncyber.com/contact.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://www.muncyber.com/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Contact | MUN Cyber Technologies">
+  <meta name="twitter:description" content="Contact MUN Cyber Technologies at info@muncyber.com for cybersecurity, software, and defensive technology discussions.">
+  <meta name="twitter:image" content="https://www.muncyber.com/assets/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary">
+      <a class="brand brand-logo" href="index.html" aria-label="MUN Cyber Technologies home">
+        <picture>
+          <source srcset="assets/mun-cyber-logo-mark.webp" type="image/webp">
+          <img src="assets/mun-cyber-logo-mark.png" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" class="header-logo" width="220" height="74">
+        </picture>
+      </a>
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="primary-nav">☰</button>
+            <div id="primary-nav" class="nav-links">
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="signup.html">Sign in</a>
+        <a class="nav-cta" href="contact.html" aria-current="page">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="section cta" aria-labelledby="cta-heading">
+      <div class="container">
+        <div class="cta-box">
+          <div>
+            <p class="eyebrow">Start a conversation</p>
+            <h2 id="cta-heading">Have a cybersecurity or technology challenge?</h2>
+            <p>Tell us what you are trying to solve. We would be glad to discuss the problem and explore a practical path forward.</p>
+          </div>
+          <div class="cta-actions"><button type="button" class="button light" data-open-chat>Chat to Mun Cyber Team</button> <a class="button secondary" href="mailto:info@muncyber.com">Email / contact</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="section contact" aria-labelledby="contact-heading">
+      <div class="container contact-grid">
+        <div>
+          <p class="eyebrow">Contact</p>
+          <h2 id="contact-heading">Let's build a stronger digital defense.</h2>
+          <p>For business inquiries, technology discussions, cybersecurity awareness, or partnership opportunities:</p>
+          <a class="contact-email" href="mailto:info@muncyber.com">info@muncyber.com</a>
+        </div>
+        <form id="contact-form" class="contact-form" novalidate>
+          <div class="field">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" autocomplete="name" required placeholder="Your name">
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" autocomplete="email" required placeholder="you@organization.com">
+          </div>
+          <div class="field">
+            <label for="organization">Organization</label>
+            <input id="organization" name="organization" type="text" autocomplete="organization" placeholder="Optional">
+          </div>
+          <div class="field">
+            <label for="message">How can we help?</label>
+            <textarea id="message" name="message" rows="5" required placeholder="Briefly describe your challenge or interest"></textarea>
+          </div>
+          <button class="button primary" type="submit">Send inquiry</button>
+          <p class="form-note">Submitting this form opens your email application. No information is stored on this website.</p>
+          <p id="form-status" class="form-status" role="status" aria-live="polite" hidden></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand footer-brand" href="index.html" aria-label="MUN Cyber Technologies home">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span><strong>MUN CYBER</strong><small>TECHNOLOGIES</small></span>
+        </a>
+        <p>Cybersecurity awareness, software development, and defensive cyber systems.</p>
+      </div>
+            <nav class="footer-links" aria-label="Footer">
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="signup.html">Sign in</a>
+        <a href="contact.html" aria-current="page">Contact</a>
+        <a href="mailto:info@muncyber.com">info@muncyber.com</a>
+      </nav>
+    </div>
+    <div class="container copyright">© <span id="year"></span> MUN Cyber Technologies. All rights reserved.</div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+  <script src="js/auth.js" defer></script>
+  <script src="js/chat.js" defer></script>
+  <script src="js/analytics.js" defer></script>
+</body>
+</html>

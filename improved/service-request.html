@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Request a MUN Cyber Technologies service engagement and pay the starting deposit securely.">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://www.muncyber.com/service-request.html">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <title>Request Service | MUN Cyber Technologies</title>
+  <meta property="og:title" content="Request Service | MUN Cyber Technologies">
+  <meta property="og:description" content="Request a MUN Cyber Technologies service engagement and pay the starting deposit securely.">
+  <meta property="og:url" content="https://www.muncyber.com/service-request.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://www.muncyber.com/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Request Service | MUN Cyber Technologies">
+  <meta name="twitter:description" content="Request a MUN Cyber Technologies service engagement and pay the starting deposit securely.">
+  <meta name="twitter:image" content="https://www.muncyber.com/assets/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/chat.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary">
+      <a class="brand brand-logo" href="index.html" aria-label="MUN Cyber Technologies home">
+        <picture>
+          <source srcset="assets/mun-cyber-logo-mark.webp" type="image/webp">
+          <img src="assets/mun-cyber-logo-mark.png" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" class="header-logo" width="220" height="74">
+        </picture>
+      </a>
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="primary-nav">☰</button>
+      <div id="primary-nav" class="nav-links">
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="signup.html">Sign in</a>
+        <a class="nav-cta" href="contact.html">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="section purchase service-request" id="service-request-root" aria-labelledby="sr-heading">
+      <div class="container narrow-form">
+        <div id="sr-paid-banner" class="sr-banner sr-banner-success" hidden role="status" aria-live="polite">
+          <strong>Payment confirmed.</strong>
+          <span id="sr-paid-detail"> We’ll email next steps.</span>
+        </div>
+        <div id="sr-cancel-banner" class="sr-banner sr-banner-warn" hidden role="status" aria-live="polite">
+          <strong>Payment was not completed.</strong> No charge was taken. Your form is still below — you can try Pay again when ready.
+        </div>
+
+        <p class="eyebrow">Request service</p>
+        <h2 id="sr-heading">Tell us what you need</h2>
+        <p class="purchase-summary">
+          Fill out the form. After you submit, a payment dialog will ask you to pay the starting engagement deposit.
+          Balance is invoiced after scope.
+        </p>
+
+        <form id="sr-form" class="contact-form purchase-form" novalidate>
+          <div class="field">
+            <label for="sr-name">Name</label>
+            <input id="sr-name" name="name" type="text" autocomplete="name" required placeholder="Your name">
+          </div>
+          <div class="field">
+            <label for="sr-email">Email</label>
+            <input id="sr-email" name="email" type="email" autocomplete="email" required placeholder="you@organization.com">
+          </div>
+          <div class="field">
+            <label for="sr-phone">Phone (optional)</label>
+            <input id="sr-phone" name="phone" type="tel" autocomplete="tel" placeholder="+15551234567">
+          </div>
+          <div class="field">
+            <label for="sr-organization">Organization</label>
+            <input id="sr-organization" name="organization" type="text" autocomplete="organization" required placeholder="Company or team">
+          </div>
+          <div class="field">
+            <label for="sr-service">Service</label>
+            <select id="sr-service" name="service" required>
+              <option value="">Select a service…</option>
+              <option value="svc-awareness">Cybersecurity Awareness</option>
+              <option value="svc-software">Software Development</option>
+              <option value="svc-defensive">Defensive Cyber Systems</option>
+              <option value="svc-ai-ops">AI for Security Operations</option>
+            </select>
+            <p id="sr-price-load-note" class="form-note" role="status" hidden></p>
+          </div>
+          <div class="field">
+            <label for="sr-details">Project / details</label>
+            <textarea id="sr-details" name="details" rows="5" required placeholder="Describe goals, environment, constraints, and what success looks like"></textarea>
+          </div>
+          <div class="field">
+            <label for="sr-timeline">Preferred timeline</label>
+            <select id="sr-timeline" name="timeline">
+              <option value="">Not sure yet</option>
+              <option value="ASAP / within 2 weeks">ASAP / within 2 weeks</option>
+              <option value="2–6 weeks">2–6 weeks</option>
+              <option value="1–3 months">1–3 months</option>
+              <option value="Flexible / exploratory">Flexible / exploratory</option>
+            </select>
+          </div>
+          <button class="button primary" type="submit" id="sr-submit">Submit request</button>
+          <p class="form-note">
+            We do not collect card numbers on this page. Deposit payment uses Stripe Checkout when configured,
+            or a confirm-request path if card checkout is not yet enabled.
+          </p>
+          <p id="sr-status" class="form-status" role="status" aria-live="polite" hidden></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Payment modal -->
+  <div id="sr-modal" class="sr-modal" hidden>
+    <div class="sr-modal-backdrop" data-sr-close="1" tabindex="-1"></div>
+    <div
+      class="sr-modal-dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="sr-modal-title"
+      aria-describedby="sr-modal-desc"
+    >
+      <button type="button" class="sr-modal-close" data-sr-close="1" aria-label="Close payment dialog">×</button>
+      <p class="eyebrow">Deposit</p>
+      <h3 id="sr-modal-title">Complete payment</h3>
+      <p id="sr-modal-desc" class="sr-modal-lead">
+        Pay the starting engagement deposit to confirm your request. Remaining balance is invoiced after scope.
+      </p>
+
+      <div class="sr-modal-summary">
+        <div class="sr-modal-row">
+          <span>Service</span>
+          <strong id="sr-modal-service-name">—</strong>
+        </div>
+        <div class="sr-modal-row">
+          <span>Deposit</span>
+          <strong id="sr-modal-amount">—</strong>
+        </div>
+        <p id="sr-modal-price-note" class="sr-modal-note"></p>
+        <div class="sr-modal-details">
+          <span class="sr-modal-details-label">Your summary</span>
+          <p id="sr-modal-summary-text"></p>
+        </div>
+      </div>
+
+      <div id="sr-modal-stripe-panel">
+        <div class="sr-modal-actions">
+          <button type="button" class="button primary" id="sr-pay-btn">Pay deposit</button>
+          <button type="button" class="button secondary" id="sr-cancel-btn" data-sr-close="1">Cancel</button>
+        </div>
+        <p class="form-note" id="sr-modal-stripe-hint">
+          You will be redirected to Stripe Checkout to pay securely. We never see your full card number.
+          Cancel closes this dialog with no charge — your form stays filled so you can edit or leave.
+        </p>
+      </div>
+
+      <div id="sr-modal-fallback" class="sr-modal-fallback" hidden>
+        <p class="purchase-honest-note">
+          Live card checkout is <strong>not configured</strong> on this Worker yet
+          (<code>STRIPE_SECRET_KEY</code> secret). Your request can still be saved for our team —
+          no card is charged here.
+        </p>
+        <div class="sr-modal-actions">
+          <button type="button" class="button primary" id="sr-confirm-btn">Confirm request</button>
+          <a class="button secondary" id="sr-mailto-btn" href="mailto:info@muncyber.com">Email backup</a>
+          <button type="button" class="button secondary" id="sr-cancel-btn-fb" data-sr-close="1">Cancel</button>
+        </div>
+      </div>
+
+      <p id="sr-modal-status" class="form-status" role="status" aria-live="polite" hidden></p>
+      <p class="form-note" id="sr-modal-order-id" hidden></p>
+    </div>
+  </div>
+
+  <div id="sr-toast" class="sr-toast" role="status" aria-live="polite" hidden>
+    <span id="sr-toast-msg" class="sr-toast-msg"></span>
+    <button type="button" id="sr-toast-dismiss" class="sr-toast-dismiss" aria-label="Dismiss notification">×</button>
+  </div>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand footer-brand" href="index.html" aria-label="MUN Cyber Technologies home">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span><strong>MUN CYBER</strong><small>TECHNOLOGIES</small></span>
+        </a>
+        <p>Cybersecurity awareness, software development, and defensive cyber systems.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="signup.html">Sign in</a>
+        <a href="contact.html">Contact</a>
+        <a href="mailto:info@muncyber.com">info@muncyber.com</a>
+      </nav>
+    </div>
+    <div class="container copyright">© <span id="year"></span> MUN Cyber Technologies. All rights reserved.</div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+  <script src="js/auth.js" defer></script>
+  <script src="js/chat.js" defer></script>
+  <script src="js/service-request.js" defer></script>
+  <script src="js/analytics.js" defer></script>
+</body>
+</html>

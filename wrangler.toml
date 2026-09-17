@@ -1,0 +1,22 @@
+name = "fancy-breeze-64bc"
+main = "src/worker.js"
+compatibility_date = "2024-09-15"
+workers_dev = true
+
+# Static marketing site (HTML/CSS/JS)
+[assets]
+directory = "./improved"
+binding = "ASSETS"
+not_found_handling = "404-page"
+html_handling = "none"
+# Run Worker before static assets so HTTP→HTTPS redirect and HSTS apply
+run_worker_first = true
+
+# D1 auth database
+# Create with: npx wrangler d1 create mun-cyber-auth
+# Then replace daf34ae4-8f95-4907-8630-254be26158f9 with the printed database_id
+[[d1_databases]]
+binding = "DB"
+database_name = "mun-cyber-auth"
+database_id = "daf34ae4-8f95-4907-8630-254be26158f9"
+migrations_dir = "migrations"

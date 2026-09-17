@@ -1,0 +1,14 @@
+# MUN Cyber Technologies — https://www.muncyber.com
+User-agent: *
+Allow: /
+
+# Internal / authenticated surfaces
+Disallow: /admin
+Disallow: /admin.html
+Disallow: /api/
+Disallow: /mfa-setup
+Disallow: /mfa-setup.html
+Disallow: /mfa-verify
+Disallow: /mfa-verify.html
+
+Sitemap: https://www.muncyber.com/sitemap.xml

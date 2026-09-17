@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="MUN Cyber Technologies admin dashboard.">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <title>Admin | MUN Cyber Technologies</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+  <a class="skip-link" href="#admin-main">Skip to main content</a>
+
+  <div id="admin-gate" class="admin-gate" hidden>
+    <div class="admin-gate-card">
+      <p class="eyebrow">Admin</p>
+      <h1>Access restricted</h1>
+      <p id="admin-gate-msg">Checking your session…</p>
+      <div class="admin-gate-actions">
+        <a class="button primary" href="signup.html">Sign in</a>
+        <a class="button secondary" href="index.html">Home</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="admin-app" class="admin-app" hidden>
+    <aside class="admin-sidebar" aria-label="Admin navigation">
+      <a class="admin-brand" href="index.html" aria-label="MUN Cyber home">
+        <picture>
+          <source srcset="assets/mun-cyber-logo-mark.webp" type="image/webp">
+          <img src="assets/mun-cyber-logo-mark.png" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" width="118" height="40">
+        </picture>
+        <span>
+          <strong>MUN Cyber</strong>
+          <small>Admin</small>
+        </span>
+      </a>
+      <nav class="admin-nav" role="tablist" aria-label="Admin permissions">
+        <button type="button" class="admin-nav-btn is-active" data-tab="overview" role="tab" aria-selected="true">Overview</button>
+        <button type="button" class="admin-nav-btn" data-tab="users" role="tab" aria-selected="false">Accounts</button>
+        <button type="button" class="admin-nav-btn" data-tab="products" role="tab" aria-selected="false">Products &amp; prices</button>
+        <button type="button" class="admin-nav-btn" data-tab="orders" role="tab" aria-selected="false">Purchases &amp; requests</button>
+        <button type="button" class="admin-nav-btn" data-tab="messages" role="tab" aria-selected="false">Notify customers</button>
+        <button type="button" class="admin-nav-btn" data-tab="chats" role="tab" aria-selected="false">MC Chat Bot <span id="chats-nav-badge" class="admin-nav-badge" hidden></span></button>
+      </nav>
+      <div class="admin-sidebar-foot">
+        <p id="admin-who" class="admin-who"></p>
+        <a class="text-link" href="products.html">← Site</a>
+        <button type="button" class="nav-signout" id="admin-signout">Sign out</button>
+      </div>
+    </aside>
+
+    <div class="admin-main-wrap">
+      <header class="admin-topbar">
+        <h1 id="admin-section-title">Overview</h1>
+        <p id="admin-status" class="admin-status" role="status" aria-live="polite" hidden></p>
+      </header>
+
+      <main id="admin-main" class="admin-main">
+        <!-- Overview -->
+        <section id="tab-overview" class="admin-panel is-active" role="tabpanel">
+          <div class="admin-stat-grid" id="overview-stats">
+            <div class="admin-stat"><span class="admin-stat-label">Users</span><strong id="stat-users">—</strong></div>
+            <div class="admin-stat"><span class="admin-stat-label">Admins</span><strong id="stat-admins">—</strong></div>
+            <div class="admin-stat"><span class="admin-stat-label">Active products</span><strong id="stat-products">—</strong></div>
+            <div class="admin-stat"><span class="admin-stat-label">New orders</span><strong id="stat-orders-new">—</strong></div>
+            <div class="admin-stat"><span class="admin-stat-label">Total orders</span><strong id="stat-orders">—</strong></div>
+            <div class="admin-stat"><span class="admin-stat-label">Messages</span><strong id="stat-messages">—</strong></div>
+            <div class="admin-stat"><span class="admin-stat-label">Open chats</span><strong id="stat-chats-open">—</strong></div>
+            <div class="admin-stat"><span class="admin-stat-label">Needs human</span><strong id="stat-chats-needs-human">—</strong></div>
+            <div class="admin-stat"><span class="admin-stat-label">Total chats</span><strong id="stat-chats">—</strong></div>
+          </div>
+
+          <h2 class="admin-perm-heading">Your admin permissions</h2>
+          <p class="admin-hint">Use the left menu (or the cards below) to open each area. These are the controls you asked for.</p>
+          <div class="admin-perm-grid">
+            <button type="button" class="admin-perm-card" data-goto="users">
+              <strong>Create, disable &amp; delete accounts</strong>
+              <span>Add users, disable access, delete accounts, and change customer/admin roles.</span>
+            </button>
+            <button type="button" class="admin-perm-card" data-goto="products">
+              <strong>Update products &amp; prices</strong>
+              <span>Edit AI SOC Assistant, Mun Cyber Eye, add products, and set price labels.</span>
+            </button>
+            <button type="button" class="admin-perm-card" data-goto="orders">
+              <strong>Review purchases &amp; reply</strong>
+              <span>See customer purchase/download requests, change status, and write replies.</span>
+            </button>
+            <button type="button" class="admin-perm-card" data-goto="messages">
+              <strong>Notify / email customers</strong>
+              <span>Compose messages to customers and open an email draft when they have an email.</span>
+            </button>
+            <button type="button" class="admin-perm-card" data-goto="chats">
+              <strong>Review MC Chat Bot</strong>
+              <span>Read visitor conversations, highlight handoffs needing reply, and answer in-thread.</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Users -->
+        <section id="tab-users" class="admin-panel" role="tabpanel" hidden>
+          <div class="admin-toolbar">
+            <h2>Accounts — create, disable, delete, roles</h2>
+            <button type="button" class="button primary" id="btn-user-create">Create account</button>
+          </div>
+          <div id="user-create-form-wrap" class="admin-card" hidden>
+            <h3>Create account</h3>
+            <form id="user-create-form" class="admin-form">
+              <div class="admin-form-grid">
+                <div class="field"><label for="cu-name">Name</label><input id="cu-name" name="name" required></div>
+                <div class="field"><label for="cu-email">Email</label><input id="cu-email" name="email" type="email" placeholder="optional if phone set"></div>
+                <div class="field"><label for="cu-phone">Phone</label><input id="cu-phone" name="phone" placeholder="+15551234567"></div>
+                <div class="field"><label for="cu-password">Temporary password</label><input id="cu-password" name="password" type="password" required autocomplete="new-password"></div>
+                <div class="field"><label for="cu-role">Role</label>
+                  <select id="cu-role" name="role"><option value="customer">customer</option><option value="admin">admin</option></select>
+                </div>
+              </div>
+              <div class="admin-form-actions">
+                <button type="submit" class="button primary">Save user</button>
+                <button type="button" class="button secondary" id="btn-user-create-cancel">Cancel</button>
+              </div>
+            </form>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="users-table">
+              <thead>
+                <tr>
+                  <th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>MFA</th><th>Status</th><th>Created</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-tbody"><tr><td colspan="8" class="admin-empty-state">Loading users…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Products -->
+        <section id="tab-products" class="admin-panel" role="tabpanel" hidden>
+          <div class="admin-toolbar">
+            <h2>Products &amp; prices</h2>
+            <button type="button" class="button primary" id="btn-product-create">Create product</button>
+          </div>
+          <div id="product-form-wrap" class="admin-card" hidden>
+            <h3 id="product-form-title">Create product</h3>
+            <form id="product-form" class="admin-form">
+              <input type="hidden" id="pf-id" name="id" value="">
+              <div class="admin-form-grid">
+                <div class="field"><label for="pf-name">Name</label><input id="pf-name" name="name" required></div>
+                <div class="field"><label for="pf-slug">Slug</label><input id="pf-slug" name="slug" placeholder="auto from name if empty"></div>
+                <div class="field field-span"><label for="pf-summary">Summary</label><textarea id="pf-summary" name="summary" rows="3" required></textarea></div>
+                <div class="field field-span"><label for="pf-points">Points (one per line)</label><textarea id="pf-points" name="points" rows="4"></textarea></div>
+                <div class="field"><label for="pf-price-label">Price label</label><input id="pf-price-label" name="price_label" value="Custom license"></div>
+                <div class="field"><label for="pf-price-note">Price note</label><input id="pf-price-note" name="price_note" value="License — contact for pricing"></div>
+                <div class="field"><label for="pf-price-cents">Price cents (optional)</label><input id="pf-price-cents" name="price_cents" type="number" min="0" step="1" placeholder="null"></div>
+                <div class="field"><label for="pf-active">Active</label>
+                  <select id="pf-active" name="active"><option value="1">Yes</option><option value="0">No</option></select>
+                </div>
+              </div>
+              <div class="admin-form-actions">
+                <button type="submit" class="button primary">Save product</button>
+                <button type="button" class="button secondary" id="btn-product-cancel">Cancel</button>
+              </div>
+            </form>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="products-table">
+              <thead>
+                <tr>
+                  <th>Name</th><th>Slug</th><th>Price</th><th>Cents</th><th>Active</th><th>Updated</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-tbody"><tr><td colspan="7" class="admin-empty-state">Loading products…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Orders -->
+        <section id="tab-orders" class="admin-panel" role="tabpanel" hidden>
+          <div class="admin-toolbar">
+            <h2>Purchases &amp; customer requests</h2>
+            <button type="button" class="button secondary" id="btn-orders-refresh">Refresh</button>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="orders-table">
+              <thead>
+                <tr>
+                  <th>When</th><th>Product</th><th>Buyer</th><th>Contact</th><th>Org</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-tbody"><tr><td colspan="7" class="admin-empty-state">Loading orders…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="order-detail" class="admin-card" hidden>
+            <h3>Order detail</h3>
+            <p id="order-detail-meta" class="admin-muted"></p>
+            <p id="order-detail-note" class="admin-muted"></p>
+              <p id="order-detail-session" class="admin-muted"></p>
+            <form id="order-update-form" class="admin-form">
+              <input type="hidden" id="ou-id" value="">
+              <div class="admin-form-grid">
+                <div class="field"><label for="ou-status">Status</label>
+                  <select id="ou-status">
+                    <option value="new">new</option>
+                    <option value="awaiting_payment">awaiting_payment</option>
+                    <option value="paid">paid</option>
+                    <option value="payment_confirmed">payment_confirmed</option>
+                    <option value="payment_failed">payment_failed</option>
+                    <option value="cancelled">cancelled</option>
+                    <option value="in_review">in_review</option>
+                    <option value="replied">replied</option>
+                    <option value="closed">closed</option>
+                  </select>
+                </div>
+                <div class="field field-span"><label for="ou-reply">Admin reply</label><textarea id="ou-reply" rows="4"></textarea></div>
+              </div>
+              <div class="admin-form-actions">
+                <button type="submit" class="button primary">Update order</button>
+                <button type="button" class="button secondary" id="btn-order-close">Close</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Messages -->
+        <section id="tab-messages" class="admin-panel" role="tabpanel" hidden>
+          <div class="admin-toolbar">
+            <h2>Notify customers</h2>
+          </div>
+          <div class="admin-card">
+            <h3>Compose</h3>
+            <p class="admin-hint">Messages are stored in D1. If the recipient has email, you can open a mailto: draft. Wire Resend/Mailgun later for real send.</p>
+            <form id="message-form" class="admin-form">
+              <div class="admin-form-grid">
+                <div class="field"><label for="msg-user">User (optional)</label>
+                  <select id="msg-user"><option value="">— none —</option></select>
+                </div>
+                <div class="field"><label for="msg-email">To email</label><input id="msg-email" type="email" placeholder="optional if user/phone set"></div>
+                <div class="field"><label for="msg-phone">To phone</label><input id="msg-phone" placeholder="+1555…"></div>
+                <div class="field field-span"><label for="msg-subject">Subject</label><input id="msg-subject" required></div>
+                <div class="field field-span"><label for="msg-body">Body</label><textarea id="msg-body" rows="5" required></textarea></div>
+              </div>
+              <div class="admin-form-actions">
+                <button type="submit" class="button primary">Save message</button>
+              </div>
+            </form>
+            <p id="message-mailto-wrap" hidden>
+              <a id="message-mailto" class="button secondary" href="#" target="_blank" rel="noopener">Open mailto draft</a>
+            </p>
+          </div>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="messages-table">
+              <thead>
+                <tr>
+                  <th>When</th><th>To</th><th>Subject</th><th>By</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="messages-tbody"><tr><td colspan="5" class="admin-empty-state">Loading messages…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- MC Chat Bot -->
+        <section id="tab-chats" class="admin-panel" role="tabpanel" hidden>
+          <div class="admin-toolbar">
+            <h2>MC Chat Bot conversations</h2>
+            <button type="button" class="button secondary" id="btn-chats-refresh">Refresh</button>
+          </div>
+          <p class="admin-hint">Visitor chats from MC Chat Bot are stored in D1. Threads marked needs_human need a team reply. Select a thread to read and respond.</p>
+          <div class="admin-table-wrap">
+            <table class="admin-table" id="chats-table">
+              <thead>
+                <tr>
+                  <th>Updated</th><th>Visitor</th><th>Status</th><th>Msgs</th><th>Last message</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="chats-tbody"><tr><td colspan="6" class="admin-empty-state">Loading chats…</td></tr></tbody>
+            </table>
+          </div>
+          <div id="chat-detail" class="admin-card" hidden style="margin-top:18px">
+            <div class="admin-toolbar">
+              <h3 id="chat-detail-title">Conversation</h3>
+              <div class="admin-form-actions">
+                <button type="button" class="button secondary" id="btn-chat-mark-reviewed">Mark reviewed</button>
+                <button type="button" class="button secondary" id="btn-chat-close-thread">Close</button>
+                <button type="button" class="button secondary" id="btn-chat-reopen">Reopen</button>
+              </div>
+            </div>
+            <p id="chat-detail-meta" class="admin-hint"></p>
+            <div id="chat-detail-messages" class="admin-chat-transcript"></div>
+            <form id="chat-reply-form" class="admin-form" style="margin-top:14px">
+              <label for="chat-reply-body">Reply to visitor (appears in MC Chat Bot)</label>
+              <textarea id="chat-reply-body" name="body" rows="3" maxlength="4000" required placeholder="Write a reply from the Mun Cyber Team…"></textarea>
+              <div class="admin-form-actions">
+                <button type="submit" class="button primary" id="btn-chat-reply">Send reply</button>
+              </div>
+            </form>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="js/auth.js" defer></script>
+  <script src="js/admin.js" defer></script>
+</body>
+</html>

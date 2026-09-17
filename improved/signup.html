@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sign in to MUN Cyber Technologies with email or phone, or create an account. MFA required.">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+  <link rel="canonical" href="https://www.muncyber.com/signup.html">
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+  <title>Sign in | MUN Cyber Technologies</title>
+  <meta property="og:title" content="Sign in | MUN Cyber Technologies">
+  <meta property="og:description" content="Sign in to MUN Cyber Technologies with email or phone, or create an account. MFA required.">
+  <meta property="og:url" content="https://www.muncyber.com/signup.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://www.muncyber.com/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sign in | MUN Cyber Technologies">
+  <meta name="twitter:description" content="Sign in to MUN Cyber Technologies with email or phone, or create an account. MFA required.">
+  <meta name="twitter:image" content="https://www.muncyber.com/assets/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/chat.css">
+  <style>
+    .identity-toggle { border: 0; margin: 0 0 1rem; padding: 0; }
+    .identity-legend { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: rgba(255,255,255,0.85); }
+    .identity-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .identity-tab {
+      appearance: none; border: 1px solid rgba(255,255,255,0.16);
+      background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.85);
+      border-radius: 8px; padding: 0.55rem 0.75rem; font: inherit; font-weight: 600;
+      cursor: pointer;
+    }
+    .identity-tab.is-active {
+      background: rgba(56, 189, 248, 0.16);
+      border-color: rgba(56, 189, 248, 0.55);
+      color: #e0f2fe;
+    }
+    .identity-tab:focus-visible { outline: 2px solid #38bdf8; outline-offset: 2px; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary">
+      <a class="brand brand-logo" href="index.html" aria-label="MUN Cyber Technologies home">
+        <picture>
+          <source srcset="assets/mun-cyber-logo-mark.webp" type="image/webp">
+          <img src="assets/mun-cyber-logo-mark.png" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" class="header-logo" width="220" height="74">
+        </picture>
+      </a>
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="primary-nav">☰</button>
+      <div id="primary-nav" class="nav-links">
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="signup.html" aria-current="page">Sign in</a>
+        <a class="nav-cta" href="contact.html">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="section auth-section" aria-label="Account">
+      <div class="auth-shell">
+        <div class="auth-card">
+          <div id="panel-signin">
+            <div class="auth-card-mark">
+              <picture>
+                <source srcset="assets/mun-cyber-logo-mark.webp" type="image/webp">
+                <img src="assets/mun-cyber-logo-mark.png" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" class="auth-logo" width="200" height="68">
+              </picture>
+            </div>
+            <h1 id="signin-heading" class="auth-title">Sign in</h1>
+
+            <form id="signin-form" class="contact-form auth-signin-form" novalidate autocomplete="off">
+              <div class="field">
+                <label for="signin-identifier">Email or phone</label>
+                <input id="signin-identifier" name="identifier" type="text" autocomplete="off" required placeholder="you@organization.com or +15551234567" aria-describedby="signin-id-hint" readonly>
+                <p id="signin-id-hint" class="form-note">Click the field to type or choose a saved suggestion.</p>
+              </div>
+              <div class="field">
+                <label for="signin-password">Password</label>
+                <div class="password-field">
+                  <input id="signin-password" name="password" type="password" autocomplete="off" required placeholder="Your password" readonly>
+                  <button type="button" class="password-toggle" id="toggle-signin-password" aria-pressed="false" aria-controls="signin-password" aria-label="Show password">Show</button>
+                </div>
+              </div>
+              <button class="button primary block" type="submit">Sign in</button>
+              <p id="signin-status" class="form-status" role="status" aria-live="polite" hidden></p>
+            </form>
+
+            <div class="auth-divider" role="separator" aria-label="or"><span>or</span></div>
+
+            <button type="button" id="show-signup" class="button create-account block">Create new account</button>
+          </div>
+
+          <div id="panel-signup" hidden>
+            <h1 id="signup-heading" class="auth-title" tabindex="-1">Create account</h1>
+
+            <form id="signup-form" class="contact-form" novalidate>
+              <div class="field">
+                <label for="signup-name">Name</label>
+                <input id="signup-name" name="name" type="text" autocomplete="name" required placeholder="Your name">
+              </div>
+              <fieldset class="identity-toggle" id="signup-identity-method">
+                <legend class="identity-legend">Sign up with</legend>
+                <div class="identity-tabs" role="tablist" aria-label="Identity method">
+                  <button type="button" class="identity-tab is-active" role="tab" id="tab-email" aria-selected="true" data-method="email">Email</button>
+                  <button type="button" class="identity-tab" role="tab" id="tab-phone" aria-selected="false" data-method="phone">Phone</button>
+                </div>
+              </fieldset>
+              <div class="field" id="signup-email-field">
+                <label for="signup-email">Email</label>
+                <input id="signup-email" name="email" type="email" autocomplete="email" required placeholder="you@organization.com">
+              </div>
+              <div class="field" id="signup-phone-field" hidden>
+                <label for="signup-phone">Phone</label>
+                <input id="signup-phone" name="phone" type="tel" autocomplete="tel" placeholder="+15551234567" aria-describedby="phone-hint">
+                <p id="phone-hint" class="form-note">Include country code with + (E.164), for example +1 for US/Canada.</p>
+              </div>
+              <div class="field">
+                <label for="signup-password">Password</label>
+                <input id="signup-password" name="password" type="password" autocomplete="new-password" required minlength="8" placeholder="e.g. Flood!River9" aria-describedby="password-hint">
+                <p id="password-hint" class="form-note">Use 8+ characters with uppercase, lowercase, a number, and a symbol (!@#$%).</p>
+              </div>
+              <div class="field">
+                <label for="signup-confirm">Confirm password</label>
+                <input id="signup-confirm" name="confirm" type="password" autocomplete="new-password" required placeholder="Re-enter password">
+              </div>
+              <div class="field">
+                <label for="signup-organization">Organization <span class="optional-tag">(optional)</span></label>
+                <input id="signup-organization" name="organization" type="text" autocomplete="organization" placeholder="Company or team">
+              </div>
+              <button class="button primary block" type="submit">Create account</button>
+              <p id="signup-status" class="form-status" role="status" aria-live="polite" hidden></p>
+            </form>
+
+            <p class="auth-switch">
+              Already have an account?
+              <button type="button" id="show-signin" class="auth-switch-link">Sign in</button>
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand footer-brand" href="index.html" aria-label="MUN Cyber Technologies home">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span><strong>MUN CYBER</strong><small>TECHNOLOGIES</small></span>
+        </a>
+        <p>Cybersecurity awareness, software development, and defensive cyber systems.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="services.html">Services</a>
+        <a href="products.html">Products</a>
+        <a href="about.html">About</a>
+        <a href="signup.html" aria-current="page">Sign in</a>
+        <a href="contact.html">Contact</a>
+        <a href="mailto:info@muncyber.com">info@muncyber.com</a>
+      </nav>
+    </div>
+    <div class="container copyright">© <span id="year"></span> MUN Cyber Technologies. All rights reserved.</div>
+  </footer>
+
+  <script src="js/main.js" defer></script>
+  <script src="js/auth.js" defer></script>
+  <script src="js/chat.js" defer></script>
+  <script src="js/analytics.js" defer></script>
+</body>
+</html>

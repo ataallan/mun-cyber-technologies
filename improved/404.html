@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Page not found — MUN Cyber Technologies.">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#07111f">
+  <meta name="color-scheme" content="dark">
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <title>Page not found | MUN Cyber Technologies</title>
+  <meta property="og:title" content="Page not found | MUN Cyber Technologies">
+  <meta property="og:description" content="That page is not on muncyber.com.">
+  <meta property="og:url" content="https://www.muncyber.com/404.html">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://www.muncyber.com/assets/og-image.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Page not found | MUN Cyber Technologies">
+  <meta name="twitter:description" content="That page is not on muncyber.com.">
+  <meta name="twitter:image" content="https://www.muncyber.com/assets/og-image.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/chat.css">
+  <style>
+    .error-hero { padding: 4.5rem 0 5rem; text-align: center; }
+    .error-code {
+      font-size: clamp(3.5rem, 12vw, 6rem);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin: 0 0 0.75rem;
+      background: linear-gradient(115deg, #45c7ff, #7c5cff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .error-hero h1 { margin: 0 0 0.75rem; font-size: clamp(1.5rem, 4vw, 2rem); }
+    .error-hero p { max-width: 32rem; margin: 0 auto 1.75rem; color: var(--muted); }
+    .error-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; justify-content: center; }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to main content</a>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Primary">
+      <a class="brand brand-logo" href="/index.html" aria-label="MUN Cyber Technologies home">
+        <picture>
+          <source srcset="/assets/mun-cyber-logo-mark.webp" type="image/webp">
+          <img src="/assets/mun-cyber-logo-mark.png" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" class="header-logo" width="220" height="74">
+        </picture>
+      </a>
+      <button class="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false" aria-controls="primary-nav">☰</button>
+      <div id="primary-nav" class="nav-links">
+        <a href="/services.html">Services</a>
+        <a href="/products.html">Products</a>
+        <a href="/about.html">About</a>
+        <a href="/signup.html">Sign in</a>
+        <a class="nav-cta" href="/contact.html">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="error-hero container" aria-labelledby="error-heading">
+      <p class="error-code" aria-hidden="true">404</p>
+      <h1 id="error-heading">This page is offline.</h1>
+      <p>
+        The URL you requested is not part of the MUN Cyber Technologies site.
+        Head home, browse services, or reach the team.
+      </p>
+      <div class="error-actions">
+        <a class="button primary" href="/index.html">Home</a>
+        <a class="button secondary" href="/services.html">Services</a>
+        <a class="button secondary" href="/contact.html">Contact</a>
+        <button type="button" class="button light" data-open-chat>Chat to Mun Cyber Team</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <a class="brand footer-brand" href="/index.html" aria-label="MUN Cyber Technologies home">
+          <span class="brand-mark" aria-hidden="true">M</span>
+          <span><strong>MUN CYBER</strong><small>TECHNOLOGIES</small></span>
+        </a>
+        <p>Cybersecurity awareness, software development, and defensive cyber systems.</p>
+      </div>
+      <nav class="footer-links" aria-label="Footer">
+        <a href="/services.html">Services</a>
+        <a href="/products.html">Products</a>
+        <a href="/about.html">About</a>
+        <a href="/signup.html">Sign in</a>
+        <a href="/contact.html">Contact</a>
+        <a href="mailto:info@muncyber.com">info@muncyber.com</a>
+      </nav>
+    </div>
+    <div class="container copyright">© <span id="year"></span> MUN Cyber Technologies. All rights reserved.</div>
+  </footer>
+
+  <script src="/js/main.js" defer></script>
+  <script src="/js/auth.js" defer></script>
+  <script src="/js/chat.js" defer></script>
+  <script src="/js/analytics.js" defer></script>
+</body>
+</html>
