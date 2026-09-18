@@ -1844,7 +1844,7 @@ function generateChatReply(userText, thread, opts) {
     return "You're already connected with the Mun Cyber Team on this thread. They will follow up from info@muncyber.com; you can keep adding details here.";
   }
   if (/(hello|hi\b|hey|good (morning|afternoon|evening))/.test(t) && t.length < 40) {
-    return "Hello! Welcome to MC Chat Bot. I can help with cybersecurity awareness, software development, defensive systems, AI for security ops, and our products (AI SOC Assistant and Mun Cyber Eye). What are you looking for?";
+    return "Hello! Welcome to MC Chat Bot. I can help with cybersecurity awareness, software development, defensive systems, AI for security ops, and our products (AI-Powered SOC Assistant and Mun Cyber Eye). What are you looking for?";
   }
   if (/sign[\s-]?in|log[\s-]?in|account|sign[\s-]?up|register/.test(t)) {
     return "You can create an account or sign in at signup.html on this site. Admins use MFA. If you hit a snag, email info@muncyber.com and the team can help.";
@@ -1862,16 +1862,16 @@ function generateChatReply(userText, thread, opts) {
     return "Defensive cyber systems help organizations detect, harden, and respond. We design support for security professionals \u2014 not a replacement for them. Request via Services or share requirements here for a follow-up.";
   }
   if (/\bai\b|artificial intelligence|machine learning|security ops|ai ops/.test(t) && !/soc assistant|cyber eye/.test(t)) {
-    return "We apply AI to security operations \u2014 reducing noise and speeding triage while keeping humans in control. See AI for security ops under Services, and our products AI SOC Assistant and Mun Cyber Eye under Products.";
+    return "We apply AI to security operations \u2014 reducing noise and speeding triage while keeping humans in control. See AI for security ops under Services, and our products AI-Powered SOC Assistant and Mun Cyber Eye under Products.";
   }
   if (/soc assistant|false positive|analyst/.test(t)) {
-    return "AI SOC Assistant helps security teams cut false positives so analysts focus on real alerts. It supports professionals; it does not replace them. See Products for licensing discussion, or purchase/request flow on the product page.";
+    return "AI-Powered SOC Assistant helps security teams cut false positives so analysts focus on real alerts. It supports professionals; it does not replace them. See Products for licensing discussion, or purchase/request flow on the product page.";
   }
   if (/cyber eye|camera|shooting|fight|surveillance|detection/.test(t)) {
     return "Mun Cyber Eye is camera-based detection for fights, shootings, and related threats, with instant alerts to agencies, police, homeowners, and schools. See Products for licensing or ask here and we will connect you.";
   }
   if (/product|license|pricing|buy|purchase|download/.test(t)) {
-    return "Our products are AI SOC Assistant and Mun Cyber Eye. Open Products to review and start a purchase/request. Pricing is often custom license \u2014 chat here or email info@muncyber.com for a tailored quote.";
+    return "Our products are AI-Powered SOC Assistant and Mun Cyber Eye. Open Products to review and start a purchase/request. Pricing is often custom license \u2014 chat here or email info@muncyber.com for a tailored quote.";
   }
   if (/contact|email|phone|reach/.test(t) && !wantsHumanHandoff(userText, null)) {
     return "You can email info@muncyber.com anytime, or use the Contact page. Conversations here are saved so the Mun Cyber Team can review them. Share your name and best email if you want a direct follow-up, or use Connect me to the Mun Cyber Team.";
@@ -1892,7 +1892,7 @@ function generateChatReply(userText, thread, opts) {
   if (hasLead) {
     return "Thanks \u2014 I have your contact on this thread. I noted your message for the Mun Cyber Team; a human may follow up from info@muncyber.com. Meanwhile I can still answer questions about services and products.";
   }
-  return "I am not fully sure on that one. I can help with awareness training, software development, defensive systems, AI for security ops, AI SOC Assistant, Mun Cyber Eye, sign-in, and how to request a service. Or use Connect me to the Mun Cyber Team for a human follow-up from info@muncyber.com.";
+  return "I am not fully sure on that one. I can help with awareness training, software development, defensive systems, AI for security ops, AI-Powered SOC Assistant, Mun Cyber Eye, sign-in, and how to request a service. Or use Connect me to the Mun Cyber Team for a human follow-up from info@muncyber.com.";
 }
 function parseVisitorNameFromText(text) {
   const s = String(text || "").trim();

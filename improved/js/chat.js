@@ -10,7 +10,7 @@
   var API = "/api/chat";
   var BOT_NAME = "MC Chat Bot";
   var WELCOME =
-    "Hi — I am MC Chat Bot with the Mun Cyber Team. Ask about services (awareness, software, defensive, AI), products (AI SOC Assistant, Mun Cyber Eye), or how to request help. Tap “Connect me to the Mun Cyber Team” anytime for a human follow-up from info@muncyber.com.";
+    "Hi — I am MC Chat Bot with the Mun Cyber Team. Ask about services (awareness, software, defensive, AI), products (AI-Powered SOC Assistant, Mun Cyber Eye), or how to request help. Tap “Connect me to the Mun Cyber Team” anytime for a human follow-up from info@muncyber.com.";
 
   var root = null;
   var panel = null;

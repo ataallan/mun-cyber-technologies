@@ -12,7 +12,7 @@
     "ai-soc-assistant": {
       id: "ai-soc-assistant",
       slug: "ai-soc-assistant",
-      name: "AI SOC Assistant",
+      name: "AI-Powered SOC Assistant",
       summary:
         "Helps security teams reduce false-positive alerts so analysts can focus on real threats. Supports professionals; does not replace them.",
       points: [

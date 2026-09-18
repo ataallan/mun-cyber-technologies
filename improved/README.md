@@ -40,7 +40,7 @@ See `/workspace/mun-cyber/DEPLOY-AUTH.md` for details.
 | Home | `index.html` | Hero, mission, services teaser, **products teaser**, AI/innovation teaser, CTA → Contact |
 | Services | `services.html` | Full core capabilities + **Request service** → form |
 | Service request | `service-request.html` | Request form + **payment modal** (Stripe Checkout when configured) |
-| Products | `products.html` | Catalog: **AI SOC Assistant**, **Mun Cyber Eye** — Download → purchase |
+| Products | `products.html` | Catalog: **AI-Powered SOC Assistant**, **Mun Cyber Eye** — Download → purchase |
 | Purchase | `purchase.html` | Order form for `?product=…`; mailto + localStorage purchase mark; download stub |
 | Sign up | `signup.html` | Create / sign in account (Worker API + HTTP-only session cookie) |
 | About | `about.html` | About MUN Cyber + 4-step approach |
