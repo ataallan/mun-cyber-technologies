@@ -472,7 +472,7 @@ async function forgotPassword(request, env, url) {
       mfa_required: true,
       challenge_id: challengeId,
       email_sent,
-      message: "Enter the code from your authenticator app to choose a new password."
+      message: "Enter the code from your authenticator app to choose a new password. This challenge expires in 5 minutes."
     }, 200);
   }
   if (email_sent) {
