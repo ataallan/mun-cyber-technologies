@@ -1,12 +1,14 @@
-MUN Cyber Technologies — AI SOC Assistant
-==========================================
+MUN Cyber Technologies — AI-Powered SOC Assistant
 
-What it does:
-Helps security teams reduce false-positive alerts so analysts
-can focus on real threats.
+Windows standalone demo
+-----------------------
+Download: https://github.com/ataallan/soc-assistant/releases/download/v1.0.0-standalone/AI-Powered-SOC-Assistant-standalone.zip
 
-This is a demo package stub for the static marketing site.
-Your licensed download link will be emailed after payment
-is confirmed.
+1. Unzip the folder
+2. Double-click install_and_run.bat
+3. When prompted, confirm (Y) to install Python requirements automatically
+4. Open http://127.0.0.1:5000/login
 
-Contact: info@muncyber.com
+Requires Python 3.10+ (Add to PATH).
+Commercial licensing: use License / purchase on https://muncyber.com/products.html
+or contact Mun Cyber Technologies.
