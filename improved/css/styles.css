@@ -876,6 +876,22 @@ a:hover {
   border-top: 1px solid var(--line);
   color: #506174;
   font-size: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.footer-address {
+  color: #6f8196;
+  font-size: 12px;
+  margin: 10px 0 0;
+  line-height: 1.45;
+}
+
+.copyright .footer-address {
+  margin: 0;
 }
 
 /* Responsive */
