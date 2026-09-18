@@ -2471,6 +2471,27 @@ async function parseJson(request) {
   }
 }
 
+/** Light per-IP rate limit for forgot-password (~10/min). */
+var _forgotPasswordBuckets = /* @__PURE__ */ new Map();
+function checkForgotPasswordRateLimit(request) {
+  const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
+  const now = Date.now();
+  const key = String(ip).split(",")[0].trim() || "unknown";
+  let bucket = _forgotPasswordBuckets.get(key);
+  if (!bucket || now - bucket.windowStart > 6e4) {
+    bucket = { windowStart: now, count: 0 };
+    _forgotPasswordBuckets.set(key, bucket);
+  }
+  bucket.count += 1;
+  if (bucket.count > 10) {
+    return json({ ok: false, error: "Too many reset requests. Try again shortly." }, 429);
+  }
+  if (_forgotPasswordBuckets.size > 500) {
+    _forgotPasswordBuckets.clear();
+  }
+  return null;
+}
+
 /** Rate-limited client error beacon — logs truncated payload server-side. */
 var _clientErrorBuckets = /* @__PURE__ */ new Map();
 function clientErrorBeacon(request) {
