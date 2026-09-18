@@ -52,6 +52,24 @@ On `POST /api/signup`, and again on sign-in / `GET /api/me` / MFA completion if 
 Capabilities: list/create/disable/enable/delete users; change roles; manage products & prices; list/update orders; compose customer messages (stored in D1; mailto draft from UI). Wire Resend/Mailgun later for real email send (see `improved/README.md`).
 
 
+
+
+## Forgot password
+
+Two paths (both coded in the Worker):
+
+1. **Authenticator reset (works without email)** — `POST /api/forgot-password` with `{ identifier }` looks up the account. If MFA is enabled, returns `{ mfa_required, challenge_id }` and inserts an `mfa_challenges` row. The UI (`forgot-password.html`) then submits `{ challenge_id, code, password }` to `POST /api/reset-password`.
+2. **Email reset link (optional)** — when `RESEND_API_KEY` is set and the account has an email, a one-hour `password_reset_tokens` row is created and Resend sends a link to `/reset-password.html?token=…` from `info@muncyber.com`. That page posts `{ token, password }` to `/api/reset-password`.
+
+Successful reset updates the password hash, deletes all sessions for that user, and returns `{ ok: true, message: "Password updated. You can sign in." }`.
+
+```bash
+npx wrangler secret put RESEND_API_KEY
+npx wrangler deploy
+```
+
+Migration: `0009_password_reset.sql` (`password_reset_tokens` table).
+
 ## Stripe (service deposits)
 
 Optional. Without this secret, service requests still save to D1; the payment modal offers Confirm request + mailto.

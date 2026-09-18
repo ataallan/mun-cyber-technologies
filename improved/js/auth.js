@@ -13,9 +13,12 @@
     mfaSetup: "/api/mfa/setup",
     mfaEnable: "/api/mfa/enable",
     mfaVerify: "/api/mfa/verify",
+    forgotPassword: "/api/forgot-password",
+    resetPassword: "/api/reset-password",
   };
 
   var MFA_CHALLENGE_KEY = "mun_mfa_challenge_id";
+  var FORGOT_CHALLENGE_KEY = "mun_forgot_challenge_id";
   var MFA_PAGES = {
     setup: "mfa-setup.html",
     verify: "mfa-verify.html",
@@ -700,6 +703,247 @@
     }
   }
 
+  /* ---------- Forgot password ---------- */
+  function initForgotPasswordPage() {
+    if (!isPage("forgot-password.html", "forgot-password")) return;
+
+    var idForm = document.getElementById("forgot-identifier-form");
+    var resetForm = document.getElementById("forgot-reset-form");
+    var statusEl = document.getElementById("forgot-status");
+    var resetStatusEl = document.getElementById("forgot-reset-status");
+    var challengeId = null;
+
+    try {
+      challengeId = sessionStorage.getItem(FORGOT_CHALLENGE_KEY);
+    } catch (e) {}
+
+    if (challengeId && resetForm && idForm) {
+      idForm.hidden = true;
+      resetForm.hidden = false;
+    }
+
+    if (idForm) {
+      idForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var idField = idForm.elements.namedItem("identifier");
+        var identifier = (idField && idField.value ? idField.value : "").trim();
+        if (!identifier) {
+          showStatus(statusEl, "Please enter email or phone.", true);
+          return;
+        }
+        setBusy(idForm, true);
+        showStatus(statusEl, "Checking…", false);
+        apiFetch(API.forgotPassword, {
+          method: "POST",
+          body: JSON.stringify({ identifier: identifier }),
+        })
+          .then(parseResponse)
+          .then(function (result) {
+            if (result.status === 429) {
+              showStatus(
+                statusEl,
+                (result.data && result.data.error) || "Too many requests. Try again shortly.",
+                true
+              );
+              return;
+            }
+            if (result.status === 400) {
+              showStatus(
+                statusEl,
+                (result.data && result.data.error) || "Please check your email or phone.",
+                true
+              );
+              return;
+            }
+            if (!result.ok || !result.data) {
+              showStatus(
+                statusEl,
+                (result.data && result.data.error) || "Could not start reset. Try again.",
+                true
+              );
+              return;
+            }
+            if (result.data.mfa_required && result.data.challenge_id) {
+              challengeId = result.data.challenge_id;
+              try {
+                sessionStorage.setItem(FORGOT_CHALLENGE_KEY, challengeId);
+              } catch (e2) {}
+              if (idForm) idForm.hidden = true;
+              if (resetForm) resetForm.hidden = false;
+              var msg = result.data.message || "Enter the code from your authenticator app.";
+              if (result.data.email_sent) {
+                msg += " A reset link was also emailed if that address is on file.";
+              }
+              showStatus(resetStatusEl, msg, false);
+              return;
+            }
+            showStatus(
+              statusEl,
+              (result.data && result.data.message) ||
+                "If an account exists, reset instructions were sent.",
+              false
+            );
+          })
+          .catch(function () {
+            showStatus(statusEl, "Network error. Please try again.", true);
+          })
+          .finally(function () {
+            setBusy(idForm, false);
+          });
+      });
+    }
+
+    if (resetForm) {
+      resetForm.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var codeInput = resetForm.elements.namedItem("code");
+        var passwordInput = resetForm.elements.namedItem("password");
+        var confirmInput = resetForm.elements.namedItem("confirm");
+        var code = (codeInput && codeInput.value ? codeInput.value : "").trim();
+        var password = passwordInput ? passwordInput.value || "" : "";
+        var confirm = confirmInput ? confirmInput.value || "" : "";
+        if (!challengeId) {
+          try {
+            challengeId = sessionStorage.getItem(FORGOT_CHALLENGE_KEY);
+          } catch (e3) {}
+        }
+        if (!challengeId) {
+          showStatus(resetStatusEl, "Session expired. Start again with your email or phone.", true);
+          if (idForm) idForm.hidden = false;
+          resetForm.hidden = true;
+          return;
+        }
+        if (!/^\d{6}$/.test(code)) {
+          showStatus(resetStatusEl, "Enter the 6-digit code from your authenticator app.", true);
+          return;
+        }
+        var strengthErr = passwordStrengthError(password);
+        if (strengthErr) {
+          showStatus(resetStatusEl, strengthErr, true);
+          return;
+        }
+        if (password !== confirm) {
+          showStatus(resetStatusEl, "Passwords do not match.", true);
+          return;
+        }
+        setBusy(resetForm, true);
+        showStatus(resetStatusEl, "Updating password…", false);
+        apiFetch(API.resetPassword, {
+          method: "POST",
+          body: JSON.stringify({
+            challenge_id: challengeId,
+            code: code,
+            password: password,
+          }),
+        })
+          .then(parseResponse)
+          .then(function (result) {
+            if (!result.ok || !result.data || !result.data.ok) {
+              showStatus(
+                resetStatusEl,
+                (result.data && result.data.error) || "Could not reset password. Try again.",
+                true
+              );
+              return;
+            }
+            try {
+              sessionStorage.removeItem(FORGOT_CHALLENGE_KEY);
+            } catch (e4) {}
+            showStatus(
+              resetStatusEl,
+              (result.data && result.data.message) || "Password updated. You can sign in.",
+              false
+            );
+            window.setTimeout(function () {
+              window.location.href = "/signup";
+            }, 800);
+          })
+          .catch(function () {
+            showStatus(resetStatusEl, "Network error. Please try again.", true);
+          })
+          .finally(function () {
+            setBusy(resetForm, false);
+            if (passwordInput) passwordInput.value = "";
+            if (confirmInput) confirmInput.value = "";
+            if (codeInput) codeInput.value = "";
+          });
+      });
+    }
+  }
+
+  /* ---------- Reset password (email token) ---------- */
+  function initResetPasswordPage() {
+    if (!isPage("reset-password.html", "reset-password")) return;
+
+    var form = document.getElementById("reset-password-form");
+    var statusEl = document.getElementById("reset-password-status");
+    var token = null;
+    try {
+      token = new URLSearchParams(window.location.search).get("token");
+    } catch (e) {}
+    if (!token) {
+      showStatus(statusEl, "Missing or invalid reset link. Request a new one from Forgot password.", true);
+      if (form) {
+        Array.prototype.forEach.call(form.querySelectorAll("input, button"), function (el) {
+          el.disabled = true;
+        });
+      }
+      return;
+    }
+
+    if (form) {
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        var passwordInput = form.elements.namedItem("password");
+        var confirmInput = form.elements.namedItem("confirm");
+        var password = passwordInput ? passwordInput.value || "" : "";
+        var confirm = confirmInput ? confirmInput.value || "" : "";
+        var strengthErr = passwordStrengthError(password);
+        if (strengthErr) {
+          showStatus(statusEl, strengthErr, true);
+          return;
+        }
+        if (password !== confirm) {
+          showStatus(statusEl, "Passwords do not match.", true);
+          return;
+        }
+        setBusy(form, true);
+        showStatus(statusEl, "Updating password…", false);
+        apiFetch(API.resetPassword, {
+          method: "POST",
+          body: JSON.stringify({ token: token, password: password }),
+        })
+          .then(parseResponse)
+          .then(function (result) {
+            if (!result.ok || !result.data || !result.data.ok) {
+              showStatus(
+                statusEl,
+                (result.data && result.data.error) || "Could not reset password. Request a new link.",
+                true
+              );
+              return;
+            }
+            showStatus(
+              statusEl,
+              (result.data && result.data.message) || "Password updated. You can sign in.",
+              false
+            );
+            window.setTimeout(function () {
+              window.location.href = "/signup";
+            }, 800);
+          })
+          .catch(function () {
+            showStatus(statusEl, "Network error. Please try again.", true);
+          })
+          .finally(function () {
+            setBusy(form, false);
+            if (passwordInput) passwordInput.value = "";
+            if (confirmInput) confirmInput.value = "";
+          });
+      });
+    }
+  }
+
   /* Prefill purchase form from /api/me when available */
   function prefillFromAccount(user) {
     if (!user) return;
@@ -837,6 +1081,8 @@
 
     initMfaSetupPage();
     initMfaVerifyPage();
+    initForgotPasswordPage();
+    initResetPasswordPage();
 
     if (!isMfaSetupPage() && !isMfaVerifyPage()) {
       fetchMe().then(function (user) {

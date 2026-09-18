@@ -5,6 +5,7 @@ var PBKDF2_ITERATIONS = 1e5;
 var SALT_BYTES = 16;
 var SESSION_TOKEN_BYTES = 32;
 var MFA_CHALLENGE_TTL_MS = 5 * 60 * 1e3;
+var PASSWORD_RESET_TTL_MS = 60 * 60 * 1e3;
 var TOTP_PERIOD = 30;
 var TOTP_DIGITS = 6;
 var TOTP_WINDOW = 1;
@@ -137,6 +138,12 @@ async function handleApi(request, env, url) {
   }
   if (path === "/api/chat" && method === "GET") {
     return chatGetHistory(request, env, url);
+  }
+  if (path === "/api/forgot-password" && method === "POST") {
+    return forgotPassword(request, env, url);
+  }
+  if (path === "/api/reset-password" && method === "POST") {
+    return resetPassword(request, env);
   }
   if (path.startsWith("/api/admin/")) {
     return handleAdminApi(request, env, path, method);
@@ -402,6 +409,200 @@ async function mfaVerify(request, env) {
     200,
     sessionCookieHeader(token, SESSION_MAX_AGE_SEC)
   );
+}
+async function forgotPassword(request, env, url) {
+  const rate = checkForgotPasswordRateLimit(request);
+  if (rate) return rate;
+  const body = await parseJson(request);
+  if (!body)
+    return json({ error: "Invalid JSON body" }, 400);
+  const identifierRaw = body.identifier != null ? String(body.identifier) : "";
+  if (!identifierRaw.trim()) {
+    return json({ error: "Email or phone is required" }, 400);
+  }
+  const lookup = resolveLoginIdentifier(identifierRaw);
+  const generic = {
+    ok: true,
+    message: "If an account exists, reset instructions were sent."
+  };
+  if (!lookup.ok) {
+    // Invalid format still returns 400; do not invent accounts
+    return json({ error: lookup.error }, 400);
+  }
+  let row;
+  if (lookup.kind === "email") {
+    row = await env.DB.prepare(
+      `SELECT id, email, phone, mfa_enabled, disabled, totp_secret
+       FROM users WHERE email = ?`
+    ).bind(lookup.value).first();
+  } else {
+    row = await env.DB.prepare(
+      `SELECT id, email, phone, mfa_enabled, disabled, totp_secret
+       FROM users WHERE phone = ?`
+    ).bind(lookup.value).first();
+  }
+  if (!row || row.disabled) {
+    return json(generic, 200);
+  }
+  let email_sent = false;
+  const hasEmail = !!(row.email && String(row.email).trim());
+  const canEmail = hasEmail && !!(env && env.RESEND_API_KEY);
+  if (canEmail) {
+    const rawToken = randomHex(SESSION_TOKEN_BYTES);
+    const tokenHash = await hashToken(rawToken);
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const expires = new Date(Date.now() + PASSWORD_RESET_TTL_MS).toISOString();
+    const tokenId = crypto.randomUUID();
+    await env.DB.prepare(
+      `INSERT INTO password_reset_tokens (id, user_id, token_hash, expires_at, used_at, created_at)
+       VALUES (?, ?, ?, ?, NULL, ?)`
+    ).bind(tokenId, row.id, tokenHash, expires, now).run();
+    const origin = url.origin || "https://www.muncyber.com";
+    const resetUrl = origin + "/reset-password.html?token=" + encodeURIComponent(rawToken);
+    email_sent = await sendPasswordResetEmail(env, row.email, resetUrl);
+  }
+  if (row.mfa_enabled && row.totp_secret) {
+    const challengeId = crypto.randomUUID();
+    const expires = new Date(Date.now() + MFA_CHALLENGE_TTL_MS).toISOString();
+    await env.DB.prepare(
+      "INSERT INTO mfa_challenges (id, user_id, expires_at) VALUES (?, ?, ?)"
+    ).bind(challengeId, row.id, expires).run();
+    return json({
+      ok: true,
+      mfa_required: true,
+      challenge_id: challengeId,
+      email_sent,
+      message: "Enter the code from your authenticator app to choose a new password."
+    }, 200);
+  }
+  if (email_sent) {
+    return json({
+      ok: true,
+      email_sent: true,
+      message: "If an account exists with email on file, check your inbox for a reset link."
+    }, 200);
+  }
+  if (canEmail && !email_sent) {
+    return json({
+      ok: true,
+      email_sent: false,
+      message: "If an account exists, reset instructions were sent. If you do not receive email, contact info@muncyber.com."
+    }, 200);
+  }
+  return json({
+    ok: true,
+    contact_support: true,
+    message: "If this account has MFA or email on file, follow the next step. Otherwise contact info@muncyber.com."
+  }, 200);
+}
+async function resetPassword(request, env) {
+  const body = await parseJson(request);
+  if (!body)
+    return json({ error: "Invalid JSON body" }, 400);
+  const password = String(body.password || "");
+  const passwordError = validatePasswordStrength(password);
+  if (passwordError) {
+    return json({ error: passwordError }, 400);
+  }
+  const challengeId = String(body.challenge_id || "").trim();
+  const code = String(body.code || "").trim();
+  const rawToken = String(body.token || "").trim();
+  let userId = null;
+  if (challengeId && code) {
+    if (!/^\d{6}$/.test(code)) {
+      return json({ error: "Enter the 6-digit code from your authenticator app" }, 400);
+    }
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const challenge = await env.DB.prepare(
+      "SELECT id, user_id, expires_at FROM mfa_challenges WHERE id = ?"
+    ).bind(challengeId).first();
+    if (!challenge) {
+      return json({ error: "Invalid or expired MFA challenge" }, 401);
+    }
+    if (challenge.expires_at < now) {
+      await env.DB.prepare("DELETE FROM mfa_challenges WHERE id = ?").bind(challengeId).run();
+      return json({ error: "MFA challenge expired. Start password reset again." }, 401);
+    }
+    const row = await env.DB.prepare(
+      `SELECT id, mfa_enabled, disabled, totp_secret FROM users WHERE id = ?`
+    ).bind(challenge.user_id).first();
+    if (!row || row.disabled) {
+      await env.DB.prepare("DELETE FROM mfa_challenges WHERE id = ?").bind(challengeId).run();
+      return json({ error: "This account has been disabled" }, 403);
+    }
+    if (!row.mfa_enabled || !row.totp_secret) {
+      return json({ error: "MFA is not enabled for this account" }, 400);
+    }
+    const valid = await verifyTotp(row.totp_secret, code);
+    if (!valid) {
+      return json({ error: "Invalid authenticator code" }, 401);
+    }
+    userId = row.id;
+    await env.DB.prepare("DELETE FROM mfa_challenges WHERE id = ?").bind(challengeId).run();
+  } else if (rawToken) {
+    const tokenHash = await hashToken(rawToken);
+    const now = (/* @__PURE__ */ new Date()).toISOString();
+    const tokenRow = await env.DB.prepare(
+      `SELECT id, user_id, expires_at, used_at FROM password_reset_tokens WHERE token_hash = ?`
+    ).bind(tokenHash).first();
+    if (!tokenRow || tokenRow.used_at) {
+      return json({ error: "Invalid or expired reset link" }, 401);
+    }
+    if (tokenRow.expires_at < now) {
+      await env.DB.prepare("DELETE FROM password_reset_tokens WHERE id = ?").bind(tokenRow.id).run();
+      return json({ error: "Reset link expired. Request a new one." }, 401);
+    }
+    const row = await env.DB.prepare(
+      "SELECT id, disabled FROM users WHERE id = ?"
+    ).bind(tokenRow.user_id).first();
+    if (!row || row.disabled) {
+      await env.DB.prepare("DELETE FROM password_reset_tokens WHERE id = ?").bind(tokenRow.id).run();
+      return json({ error: "This account has been disabled" }, 403);
+    }
+    userId = row.id;
+    await env.DB.prepare(
+      "UPDATE password_reset_tokens SET used_at = ? WHERE id = ?"
+    ).bind(now, tokenRow.id).run();
+    await env.DB.prepare("DELETE FROM password_reset_tokens WHERE id = ?").bind(tokenRow.id).run();
+  } else {
+    return json({ error: "Provide challenge_id and code, or a reset token" }, 400);
+  }
+  const salt = randomHex(SALT_BYTES);
+  const password_hash = await hashPassword(password, salt);
+  await env.DB.prepare(
+    "UPDATE users SET password_hash = ?, salt = ? WHERE id = ?"
+  ).bind(password_hash, salt, userId).run();
+  await env.DB.prepare("DELETE FROM sessions WHERE user_id = ?").bind(userId).run();
+  await env.DB.prepare("DELETE FROM mfa_challenges WHERE user_id = ?").bind(userId).run();
+  return json({ ok: true, message: "Password updated. You can sign in." }, 200);
+}
+async function sendPasswordResetEmail(env, toEmail, resetUrl) {
+  if (!env || !env.RESEND_API_KEY) return false;
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + env.RESEND_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Mun Cyber Technologies <info@muncyber.com>",
+        to: [toEmail],
+        subject: "Reset your Mun Cyber password",
+        html: "<p>You requested a password reset for your Mun Cyber Technologies account.</p><p><a href=\"" + resetUrl + "\">Reset your password</a></p><p>This link expires in 1 hour. If you did not request this, you can ignore this email.</p>",
+        text: "Reset your Mun Cyber password:\n\n" + resetUrl + "\n\nThis link expires in 1 hour. If you did not request this, ignore this email."
+      })
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.error("Resend password-reset email failed:", res.status, errText.slice(0, 300));
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("sendPasswordResetEmail error:", err);
+    return false;
+  }
 }
 async function listPublicProducts(env) {
   try {

@@ -1980,3 +1980,17 @@ body.sr-modal-open {
     text-align: center;
   }
 }
+
+
+.auth-forgot {
+  text-align: right;
+  margin-top: 0.35rem;
+}
+.auth-forgot a {
+  color: #7dd3fc;
+  text-decoration: none;
+  font-weight: 500;
+}
+.auth-forgot a:hover {
+  text-decoration: underline;
+}
