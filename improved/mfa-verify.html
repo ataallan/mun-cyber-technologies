@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Enter your authenticator code to finish signing in to MUN Cyber Technologies.">
+  <meta name="description" content="Enter the 6-digit code emailed to you to finish signing in to MUN Cyber Technologies.">
   <meta name="theme-color" content="#07111f">
   <meta name="color-scheme" content="dark">
   <meta name="robots" content="noindex">
   <link rel="icon" type="image/png" href="assets/favicon.png">
-  <title>Verify MFA | MUN Cyber Technologies</title>
+  <title>Email verification | MUN Cyber Technologies</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -46,15 +46,16 @@
               <img src="assets/mun-cyber-logo-mark.png?v=20260918d" alt="MUN Cyber Technologies — colorful triangle emblem with shield and padlock" class="auth-logo" width="200" height="68">
             </picture>
           </div>
-          <h1 class="auth-title">Authenticator code</h1>
-          <p class="auth-lead">Protect your account with an authenticator app (Google Authenticator, Authy, 1Password, etc.). Enter the 6-digit code from your app to finish signing in.</p>
+          <h1 class="auth-title">Check your email</h1>
+          <p class="auth-lead" id="mfa-verify-lead">We sent a 6-digit sign-in code to your email. Enter it below. The code expires in 5 minutes.</p>
 
           <form id="mfa-verify-form" class="contact-form" novalidate autocomplete="off">
             <div class="field">
-              <label for="mfa-verify-code">Authenticator code</label>
+              <label for="mfa-verify-code">Email code</label>
               <input id="mfa-verify-code" name="code" type="text" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required autofocus placeholder="6-digit code">
             </div>
             <button class="button primary block" type="submit">Verify and sign in</button>
+            <button id="mfa-email-code-btn" class="button block" type="button" style="margin-top:0.75rem">Resend code</button>
             <p id="mfa-verify-status" class="form-status" role="status" aria-live="polite" hidden></p>
           </form>
 

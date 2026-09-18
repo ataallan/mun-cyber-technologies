@@ -5,6 +5,7 @@ var PBKDF2_ITERATIONS = 1e5;
 var SALT_BYTES = 16;
 var SESSION_TOKEN_BYTES = 32;
 var MFA_CHALLENGE_TTL_MS = 5 * 60 * 1e3;
+var EMAIL_OTP_TTL_MS = 5 * 60 * 1e3;
 var PASSWORD_RESET_TTL_MS = 60 * 60 * 1e3;
 var TOTP_PERIOD = 30;
 var TOTP_DIGITS = 6;
@@ -120,6 +121,9 @@ async function handleApi(request, env, url) {
   }
   if (path === "/api/mfa/verify" && method === "POST") {
     return mfaVerify(request, env);
+  }
+  if (path === "/api/mfa/email-code" && method === "POST") {
+    return mfaEmailCode(request, env);
   }
   if (path === "/api/products" && method === "GET") {
     return listPublicProducts(env);
@@ -267,20 +271,67 @@ async function signin(request, env) {
   }
   await ensureFirstAdmin(env, row);
   const user = publicUser(row);
-  if (!row.mfa_enabled) {
-    const token = await createSession(env, row.id, 0);
-    return json(
-      { user, mfa_setup_required: true },
-      200,
-      sessionCookieHeader(token, SESSION_MAX_AGE_SEC)
-    );
+  const email = row.email ? normalizeEmail(row.email) : "";
+  const hasEmail = !!(email && isValidEmail(email));
+  const hasTotp = !!(row.mfa_enabled && row.totp_secret);
+  const resendReady = !!(env && env.RESEND_API_KEY);
+
+  // Preferred: email OTP for any account with email (no authenticator required)
+  if (hasEmail) {
+    if (!resendReady) {
+      if (hasTotp) {
+        const challengeId = crypto.randomUUID();
+        const expires = new Date(Date.now() + MFA_CHALLENGE_TTL_MS).toISOString();
+        await env.DB.prepare(
+          "INSERT INTO mfa_challenges (id, user_id, expires_at) VALUES (?, ?, ?)"
+        ).bind(challengeId, row.id, expires).run();
+        return json({
+          mfa_required: true,
+          challenge_id: challengeId,
+          method: "totp",
+          message: "Enter your authenticator code to finish signing in."
+        }, 200);
+      }
+      return json({
+        error: "Email sign-in verification is not configured. Contact support."
+      }, 503);
+    }
+    const challengeId = crypto.randomUUID();
+    const expires = new Date(Date.now() + MFA_CHALLENGE_TTL_MS).toISOString();
+    await env.DB.prepare(
+      "INSERT INTO mfa_challenges (id, user_id, expires_at) VALUES (?, ?, ?)"
+    ).bind(challengeId, row.id, expires).run();
+    const sent = await issueEmailOtp(env, row.id, challengeId, email);
+    return json({
+      mfa_required: true,
+      challenge_id: challengeId,
+      method: "email",
+      email_sent: !!sent,
+      email_hint: maskEmail(email),
+      message: sent
+        ? "We sent a 6-digit code to your email. It expires in 5 minutes."
+        : "Could not send email code automatically. Use Resend code on the next screen."
+    }, 200);
   }
-  const challengeId = crypto.randomUUID();
-  const expires = new Date(Date.now() + MFA_CHALLENGE_TTL_MS).toISOString();
-  await env.DB.prepare(
-    "INSERT INTO mfa_challenges (id, user_id, expires_at) VALUES (?, ?, ?)"
-  ).bind(challengeId, row.id, expires).run();
-  return json({ mfa_required: true, challenge_id: challengeId }, 200);
+
+  // Phone-only: TOTP fallback if previously enabled
+  if (hasTotp) {
+    const challengeId = crypto.randomUUID();
+    const expires = new Date(Date.now() + MFA_CHALLENGE_TTL_MS).toISOString();
+    await env.DB.prepare(
+      "INSERT INTO mfa_challenges (id, user_id, expires_at) VALUES (?, ?, ?)"
+    ).bind(challengeId, row.id, expires).run();
+    return json({
+      mfa_required: true,
+      challenge_id: challengeId,
+      method: "totp",
+      message: "Enter your authenticator code to finish signing in."
+    }, 200);
+  }
+
+  return json({
+    error: "This account has no email on file. Add an email for sign-in verification, or contact support at info@muncyber.com."
+  }, 400);
 }
 async function signout(request, env) {
   const token = getCookie(request, COOKIE_NAME);
@@ -393,14 +444,29 @@ async function mfaVerify(request, env) {
     await env.DB.prepare("DELETE FROM mfa_challenges WHERE id = ?").bind(challengeId).run();
     return json({ error: "This account has been disabled" }, 403);
   }
-  if (!row.mfa_enabled || !row.totp_secret) {
-    return json({ error: "MFA is not enabled for this account" }, 400);
+  // Primary: email OTP; optional TOTP fallback for phone-only / legacy accounts
+  let emailOtpId = await matchEmailOtp(env, challengeId, code, now);
+  let valid = !!emailOtpId;
+  if (!valid && row.totp_secret && row.mfa_enabled) {
+    valid = await verifyTotp(row.totp_secret, code);
   }
-  const valid = await verifyTotp(row.totp_secret, code);
   if (!valid) {
-    return json({ error: "Invalid authenticator code" }, 401);
+    return json({ error: "Invalid verification code" }, 401);
   }
+  if (emailOtpId) {
+    await env.DB.prepare(
+      "UPDATE email_otp_challenges SET consumed_at = ? WHERE id = ?"
+    ).bind(now, emailOtpId).run();
+  }
+  await env.DB.prepare(
+    "DELETE FROM email_otp_challenges WHERE mfa_challenge_id = ?"
+  ).bind(challengeId).run();
   await env.DB.prepare("DELETE FROM mfa_challenges WHERE id = ?").bind(challengeId).run();
+  // Email OTP satisfies MFA even if authenticator was never set up
+  if (!row.mfa_enabled) {
+    await env.DB.prepare("UPDATE users SET mfa_enabled = 1 WHERE id = ?").bind(row.id).run();
+    row.mfa_enabled = 1;
+  }
   await ensureFirstAdmin(env, row);
   const token = await createSession(env, row.id, 1);
   const user = publicUser(row);
@@ -409,6 +475,138 @@ async function mfaVerify(request, env) {
     200,
     sessionCookieHeader(token, SESSION_MAX_AGE_SEC)
   );
+}
+async function mfaEmailCode(request, env) {
+  const rate = checkEmailOtpRateLimit(request);
+  if (rate) return rate;
+  const body = await parseJson(request);
+  if (!body)
+    return json({ error: "Invalid JSON body" }, 400);
+  const challengeId = String(body.challenge_id || "").trim();
+  if (!challengeId) {
+    return json({ error: "challenge_id is required" }, 400);
+  }
+  if (!env || !env.RESEND_API_KEY) {
+    return json({ error: "Email verification is not configured. Contact support." }, 503);
+  }
+  const now = (/* @__PURE__ */ new Date()).toISOString();
+  const challenge = await env.DB.prepare(
+    "SELECT id, user_id, expires_at FROM mfa_challenges WHERE id = ?"
+  ).bind(challengeId).first();
+  if (!challenge) {
+    return json({ error: "Invalid or expired MFA challenge" }, 401);
+  }
+  if (challenge.expires_at < now) {
+    await env.DB.prepare("DELETE FROM mfa_challenges WHERE id = ?").bind(challengeId).run();
+    return json({ error: "MFA challenge expired. Sign in again." }, 401);
+  }
+  const row = await env.DB.prepare(
+    `SELECT id, email, phone, name, organization, mfa_enabled, role, disabled
+     FROM users WHERE id = ?`
+  ).bind(challenge.user_id).first();
+  if (!row || row.disabled) {
+    await env.DB.prepare("DELETE FROM mfa_challenges WHERE id = ?").bind(challengeId).run();
+    return json({ error: "This account has been disabled" }, 403);
+  }
+  const email = row.email ? normalizeEmail(row.email) : "";
+  if (!email || !isValidEmail(email)) {
+    return json({ error: "No email on file for this account. Contact support." }, 400);
+  }
+  const challengeRate = checkEmailOtpChallengeLimit(challengeId);
+  if (challengeRate) return challengeRate;
+  const sent = await issueEmailOtp(env, row.id, challengeId, email);
+  if (!sent) {
+    return json({ error: "Could not send email code. Try again shortly." }, 502);
+  }
+  return json({
+    ok: true,
+    message: "A new code was sent. It expires in 5 minutes.",
+    email_hint: maskEmail(email)
+  }, 200);
+}
+/** Create email OTP row + send via Resend. Returns true if email sent. */
+async function issueEmailOtp(env, userId, challengeId, email) {
+  const nowMs = Date.now();
+  const now = new Date(nowMs).toISOString();
+  const code = generateEmailOtpCode();
+  const codeHash = await hashToken(code);
+  const expires = new Date(nowMs + EMAIL_OTP_TTL_MS).toISOString();
+  await env.DB.prepare(
+    "DELETE FROM email_otp_challenges WHERE mfa_challenge_id = ? AND consumed_at IS NULL"
+  ).bind(challengeId).run();
+  const otpId = crypto.randomUUID();
+  await env.DB.prepare(
+    `INSERT INTO email_otp_challenges
+      (id, user_id, mfa_challenge_id, code_hash, expires_at, consumed_at, created_at)
+     VALUES (?, ?, ?, ?, ?, NULL, ?)`
+  ).bind(otpId, userId, challengeId, codeHash, expires, now).run();
+  const sent = await sendMfaEmailCode(env, email, code);
+  if (!sent) {
+    await env.DB.prepare("DELETE FROM email_otp_challenges WHERE id = ?").bind(otpId).run();
+    return false;
+  }
+  return true;
+}
+async function matchEmailOtp(env, challengeId, code, nowIso) {
+  try {
+    const otp = await env.DB.prepare(
+      `SELECT id, code_hash, expires_at FROM email_otp_challenges
+       WHERE mfa_challenge_id = ? AND consumed_at IS NULL
+       ORDER BY created_at DESC LIMIT 1`
+    ).bind(challengeId).first();
+    if (!otp) return null;
+    if (otp.expires_at < nowIso) return null;
+    const codeHash = await hashToken(code);
+    if (!timingSafeEqualHex(codeHash, otp.code_hash)) return null;
+    return otp.id;
+  } catch (err) {
+    console.error("matchEmailOtp:", err);
+    return null;
+  }
+}
+function generateEmailOtpCode() {
+  const bytes = new Uint8Array(4);
+  crypto.getRandomValues(bytes);
+  const n = ((bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3]) >>> 0;
+  return String(n % 1e6).padStart(6, "0");
+}
+function maskEmail(email) {
+  const e = String(email || "").trim().toLowerCase();
+  const at = e.indexOf("@");
+  if (at <= 0) return "***";
+  const local = e.slice(0, at);
+  const domain = e.slice(at + 1);
+  if (!domain) return "***";
+  const first = local.charAt(0) || "*";
+  return first + "***@" + domain;
+}
+async function sendMfaEmailCode(env, toEmail, code) {
+  if (!env || !env.RESEND_API_KEY) return false;
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        "Authorization": "Bearer " + env.RESEND_API_KEY,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        from: "Mun Cyber Technologies <info@muncyber.com>",
+        to: [toEmail],
+        subject: "Your Mun Cyber sign-in code",
+        html: "<p>Your Mun Cyber Technologies sign-in code is:</p><p style=\"font-size:24px;letter-spacing:4px;font-weight:700\"><strong>" + code + "</strong></p><p>This code expires in 5 minutes. If you did not try to sign in, you can ignore this email.</p>",
+        text: "Your Mun Cyber sign-in code is: " + code + "\n\nThis code expires in 5 minutes. If you did not try to sign in, ignore this email."
+      })
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "");
+      console.error("Resend MFA email OTP failed:", res.status, errText.slice(0, 300));
+      return false;
+    }
+    return true;
+  } catch (err) {
+    console.error("sendMfaEmailCode error:", err);
+    return false;
+  }
 }
 async function forgotPassword(request, env, url) {
   const rate = checkForgotPasswordRateLimit(request);
@@ -2488,6 +2686,43 @@ function checkForgotPasswordRateLimit(request) {
   }
   if (_forgotPasswordBuckets.size > 500) {
     _forgotPasswordBuckets.clear();
+  }
+  return null;
+}
+
+/** Light per-IP rate limit for MFA email OTP (~10/min). */
+var _emailOtpIpBuckets = /* @__PURE__ */ new Map();
+function checkEmailOtpRateLimit(request) {
+  const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
+  const now = Date.now();
+  const key = String(ip).split(",")[0].trim() || "unknown";
+  let bucket = _emailOtpIpBuckets.get(key);
+  if (!bucket || now - bucket.windowStart > 6e4) {
+    bucket = { windowStart: now, count: 0 };
+    _emailOtpIpBuckets.set(key, bucket);
+  }
+  bucket.count += 1;
+  if (bucket.count > 10) {
+    return json({ error: "Too many email code requests. Try again shortly." }, 429);
+  }
+  if (_emailOtpIpBuckets.size > 500) {
+    _emailOtpIpBuckets.clear();
+  }
+  return null;
+}
+
+/** Max ~5 email OTP sends per MFA challenge_id. */
+var _emailOtpChallengeBuckets = /* @__PURE__ */ new Map();
+function checkEmailOtpChallengeLimit(challengeId) {
+  const key = String(challengeId || "");
+  let count = _emailOtpChallengeBuckets.get(key) || 0;
+  count += 1;
+  _emailOtpChallengeBuckets.set(key, count);
+  if (count > 5) {
+    return json({ error: "Too many email codes for this sign-in. Use your authenticator app or sign in again." }, 429);
+  }
+  if (_emailOtpChallengeBuckets.size > 500) {
+    _emailOtpChallengeBuckets.clear();
   }
   return null;
 }

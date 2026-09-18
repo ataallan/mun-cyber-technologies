@@ -8,12 +8,14 @@ This site uses Worker `fancy-breeze-64bc` with static assets from `./improved` a
 - Phone numbers must include country code with `+` (E.164-ish), e.g. `+15551234567`.
 - Sign-in uses a single **Email or phone** field + password.
 
-## MFA (required)
+## MFA (required at sign-in)
 
-- Authenticator-app TOTP (RFC 6238, SHA1, 30s, 6 digits, ±1 window). No SMS gateway yet.
-- After signup (or first login if MFA not enabled), session has `full_access=0` until MFA is enabled.
-- If MFA already enabled: password succeeds → MFA challenge (no session cookie) → `/api/mfa/verify` → full session.
-- Existing accounts without MFA must set it up on next login.
+- **Primary: email OTP** — after password succeeds, if the account has an email and `RESEND_API_KEY` is set, the Worker creates an MFA challenge and emails a 6-digit code (expires in **5 minutes**) via Resend from `Mun Cyber Technologies <info@muncyber.com>`. User verifies at `mfa-verify.html` → `POST /api/mfa/verify`.
+- Resend: `POST /api/mfa/email-code` with `{ challenge_id }` (rate-limited: ~5/challenge, ~10/min/IP).
+- **Phone-only + prior TOTP**: authenticator code still accepted as fallback.
+- **Phone-only, no TOTP**: clear error asking to add email or contact support.
+- Signup authenticator setup (`mfa-setup.html`) remains available; successful email OTP verify also sets `mfa_enabled=1` so accounts are not stuck requiring TOTP.
+- Migration: `0010_email_otp.sql` (`email_otp_challenges` table).
 
 ## First admin (`info@muncyber.com`)
 
@@ -36,6 +38,7 @@ On `POST /api/signup`, and again on sign-in / `GET /api/me` / MFA completion if 
 - `0002_mfa.sql` — totp_secret, mfa_enabled, role, disabled, mfa_challenges, sessions.full_access
 - `0003_phone_identity.sql` — nullable email, unique phone, CHECK at least one identity
 - `0004_admin.sql` — products, orders, messages + seed AI SOC Assistant / Mun Cyber Eye
+- `0010_email_otp.sql` — email OTP challenges for sign-in MFA
 
 ## Deploy
 

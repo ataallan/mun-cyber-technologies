@@ -1,6 +1,6 @@
 /**
  * MUN Cyber Technologies — real auth via Worker API + HTTP-only session cookie
- * Enforces TOTP MFA setup before full signed-in use.
+ * Sign-in MFA: email OTP (5 min); optional legacy TOTP for phone-only accounts.
  */
 (function () {
   "use strict";
@@ -13,11 +13,14 @@
     mfaSetup: "/api/mfa/setup",
     mfaEnable: "/api/mfa/enable",
     mfaVerify: "/api/mfa/verify",
+    mfaEmailCode: "/api/mfa/email-code",
     forgotPassword: "/api/forgot-password",
     resetPassword: "/api/reset-password",
   };
 
   var MFA_CHALLENGE_KEY = "mun_mfa_challenge_id";
+  var MFA_EMAIL_HINT_KEY = "mun_mfa_email_hint";
+  var MFA_METHOD_KEY = "mun_mfa_method";
   var FORGOT_CHALLENGE_KEY = "mun_forgot_challenge_id";
   var MFA_PAGES = {
     setup: "mfa-setup.html",
@@ -220,6 +223,8 @@
     mePromise = null;
     try {
       sessionStorage.removeItem(MFA_CHALLENGE_KEY);
+      sessionStorage.removeItem(MFA_EMAIL_HINT_KEY);
+      sessionStorage.removeItem(MFA_METHOD_KEY);
     } catch (e2) {}
   }
 
@@ -489,8 +494,21 @@
           if (result.data.mfa_required && result.data.challenge_id) {
             try {
               sessionStorage.setItem(MFA_CHALLENGE_KEY, result.data.challenge_id);
+              if (result.data.email_hint) {
+                sessionStorage.setItem(MFA_EMAIL_HINT_KEY, result.data.email_hint);
+              } else {
+                sessionStorage.removeItem(MFA_EMAIL_HINT_KEY);
+              }
+              if (result.data.method) {
+                sessionStorage.setItem(MFA_METHOD_KEY, result.data.method);
+              } else {
+                sessionStorage.removeItem(MFA_METHOD_KEY);
+              }
             } catch (e) {}
-            showStatus(statusEl, "Enter your authenticator code…", false);
+            var goMsg = result.data.method === "totp"
+              ? "Enter your authenticator code…"
+              : "Check your email for a sign-in code…";
+            showStatus(statusEl, goMsg, false);
             window.setTimeout(function () {
               window.location.href = "/mfa-verify";
             }, 400);
@@ -637,15 +655,21 @@
     }
   }
 
-  /* ---------- MFA verify page (post password when MFA already enabled) ---------- */
+  /* ---------- MFA verify page (email OTP after password; TOTP fallback) ---------- */
   function initMfaVerifyPage() {
     if (!isMfaVerifyPage()) return;
 
     var statusEl = document.getElementById("mfa-verify-status");
     var verifyForm = document.getElementById("mfa-verify-form");
+    var emailBtn = document.getElementById("mfa-email-code-btn");
+    var leadEl = document.getElementById("mfa-verify-lead");
     var challengeId = null;
+    var emailHint = null;
+    var method = "email";
     try {
       challengeId = sessionStorage.getItem(MFA_CHALLENGE_KEY);
+      emailHint = sessionStorage.getItem(MFA_EMAIL_HINT_KEY);
+      method = sessionStorage.getItem(MFA_METHOD_KEY) || "email";
     } catch (e) {}
 
     if (!challengeId) {
@@ -656,16 +680,78 @@
       return;
     }
 
+    if (leadEl) {
+      if (method === "totp") {
+        leadEl.textContent = "Enter the 6-digit code from your authenticator app to finish signing in.";
+        if (emailBtn) emailBtn.hidden = true;
+      } else if (emailHint) {
+        leadEl.textContent = "We sent a 6-digit sign-in code to " + emailHint + ". Enter it below. The code expires in 5 minutes.";
+      }
+    }
+
+    if (emailHint && method !== "totp") {
+      showStatus(statusEl, "Code sent to " + emailHint + ".", false);
+    }
+
+    if (emailBtn) {
+      emailBtn.addEventListener("click", function () {
+        emailBtn.disabled = true;
+        showStatus(statusEl, "Sending a new code…", false);
+        apiFetch(API.mfaEmailCode, {
+          method: "POST",
+          body: JSON.stringify({ challenge_id: challengeId }),
+        })
+          .then(parseResponse)
+          .then(function (result) {
+            if (!result.ok || !result.data || !result.data.ok) {
+              showStatus(
+                statusEl,
+                (result.data && result.data.error) || "Could not resend code.",
+                true
+              );
+              return;
+            }
+            if (result.data.email_hint) {
+              emailHint = result.data.email_hint;
+              try {
+                sessionStorage.setItem(MFA_EMAIL_HINT_KEY, emailHint);
+              } catch (e3) {}
+              if (leadEl) {
+                leadEl.textContent = "We sent a 6-digit sign-in code to " + emailHint + ". Enter it below. The code expires in 5 minutes.";
+              }
+            }
+            showStatus(
+              statusEl,
+              (result.data.message || "Code sent.") + (emailHint ? " (" + emailHint + ")" : ""),
+              false
+            );
+          })
+          .catch(function () {
+            showStatus(statusEl, "Network error. Please try again.", true);
+          })
+          .finally(function () {
+            emailBtn.disabled = false;
+          });
+      });
+    }
+
     if (verifyForm) {
       verifyForm.addEventListener("submit", function (event) {
         event.preventDefault();
         var codeInput = verifyForm.elements.namedItem("code");
         var code = (codeInput && codeInput.value ? codeInput.value : "").trim();
         if (!/^\d{6}$/.test(code)) {
-          showStatus(statusEl, "Enter the 6-digit code from your authenticator app.", true);
+          showStatus(
+            statusEl,
+            method === "totp"
+              ? "Enter the 6-digit code from your authenticator app."
+              : "Enter the 6-digit code from your email.",
+            true
+          );
           return;
         }
         setBusy(verifyForm, true);
+        if (emailBtn) emailBtn.disabled = true;
         showStatus(statusEl, "Verifying…", false);
         apiFetch(API.mfaVerify, {
           method: "POST",
@@ -683,6 +769,8 @@
             }
             try {
               sessionStorage.removeItem(MFA_CHALLENGE_KEY);
+              sessionStorage.removeItem(MFA_EMAIL_HINT_KEY);
+              sessionStorage.removeItem(MFA_METHOD_KEY);
             } catch (e2) {}
             cachedUser = result.data.user;
             cachedMfaSetupRequired = false;
@@ -697,6 +785,7 @@
           })
           .finally(function () {
             setBusy(verifyForm, false);
+            if (emailBtn) emailBtn.disabled = false;
             if (codeInput) codeInput.value = "";
           });
       });
