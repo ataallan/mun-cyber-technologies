@@ -57,7 +57,7 @@ INSERT OR IGNORE INTO products (
 ) VALUES (
   'prod-ai-soc-assistant',
   'ai-soc-assistant',
-  'AI SOC Assistant',
+  'AI-Powered SOC Assistant',
   'Helps security teams cut down false positives so analysts spend time on real alerts, not noise. Supports professionals; does not replace them.',
   '["Reduces false-positive alerts","Helps analysts focus on real threats","Supports SOC workflows without replacing people"]',
   'Custom license',
