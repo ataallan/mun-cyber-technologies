@@ -7,6 +7,10 @@
 
   var CONTACT_EMAIL = "info@muncyber.com";
   var PURCHASES_KEY = "munCyberPurchases";
+  var SOC_STANDALONE_ZIP =
+    "https://github.com/ataallan/soc-assistant/releases/download/v1.0.0-standalone/AI-Powered-SOC-Assistant-standalone.zip";
+  var EYE_STANDALONE_ZIP =
+    "https://github.com/ataallan/mun-cyber-eye/releases/download/v0.16.0/mun-cyber-eye-standalone.zip";
 
   var STATIC_PRODUCTS = {
     "ai-soc-assistant": {
@@ -23,8 +27,8 @@
       price_label: "Custom license",
       price_note: "License — contact for pricing",
       license: "Custom license",
-      downloadFile: "assets/downloads/ai-soc-assistant-readme.txt",
-      downloadLabel: "Download package note (demo stub)",
+      downloadFile: SOC_STANDALONE_ZIP,
+      downloadLabel: "Download AI-Powered SOC Assistant",
     },
     "mun-cyber-eye": {
       id: "mun-cyber-eye",
@@ -40,8 +44,8 @@
       price_label: "Custom license",
       price_note: "License — contact for pricing",
       license: "Custom license",
-      downloadFile: "assets/downloads/mun-cyber-eye-readme.txt",
-      downloadLabel: "Download package note (demo stub)",
+      downloadFile: EYE_STANDALONE_ZIP,
+      downloadLabel: "Download Mun Cyber Eye",
     },
   };
 
@@ -86,20 +90,31 @@
   function downloadMeta(slug) {
     if (slug === "ai-soc-assistant") {
       return {
-        downloadFile: "assets/downloads/ai-soc-assistant-readme.txt",
-        downloadLabel: "Download package note (demo stub)",
+        downloadFile: SOC_STANDALONE_ZIP,
+        downloadLabel: "Download AI-Powered SOC Assistant",
       };
     }
     if (slug === "mun-cyber-eye") {
       return {
-        downloadFile: "assets/downloads/mun-cyber-eye-readme.txt",
-        downloadLabel: "Download package note (demo stub)",
+        downloadFile: EYE_STANDALONE_ZIP,
+        downloadLabel: "Download Mun Cyber Eye",
       };
     }
     return {
-      downloadFile: "assets/downloads/ai-soc-assistant-readme.txt",
-      downloadLabel: "Download package note (demo stub)",
+      downloadFile: "",
+      downloadLabel: "Download",
     };
+  }
+
+  function isDirectZipDownload(url) {
+    return /^https?:\/\//i.test(url || "") && /\.zip(\?|#|$)/i.test(url);
+  }
+
+  function downloadFileName(url, fallbackId) {
+    var path = String(url || "").split("?")[0].split("#")[0];
+    var name = path.split("/").pop();
+    if (name) return name;
+    return (fallbackId || "download") + ".zip";
   }
 
   function normalizeApiProduct(p) {
@@ -182,10 +197,19 @@
       "</span>" +
       "</div>" +
       '<div class="product-actions">' +
-      '<a class="button primary product-download-btn" href="purchase.html?product=' +
-      encodeURIComponent(p.slug) +
-      '">Download</a>' +
-      '<a class="button secondary" href="contact.html">Ask about licensing</a>' +
+      (isDirectZipDownload(p.downloadFile)
+        ? '<a class="button primary product-download-btn" href="' +
+          escapeHtml(p.downloadFile) +
+          '" download>' +
+          escapeHtml(p.downloadLabel || "Download " + (p.name || "")) +
+          "</a>" +
+          '<a class="button secondary" href="purchase.html?product=' +
+          encodeURIComponent(p.slug) +
+          '">License / purchase</a>'
+        : '<a class="button primary product-download-btn" href="purchase.html?product=' +
+          encodeURIComponent(p.slug) +
+          '">Download</a>' +
+          '<a class="button secondary" href="contact.html">Ask about licensing</a>') +
       "</div>" +
       "</article>"
     );
@@ -244,8 +268,13 @@
       if (downloadArea) downloadArea.hidden = false;
       if (downloadLink) {
         downloadLink.href = product.downloadFile;
-        downloadLink.setAttribute("download", product.id + "-readme.txt");
+        downloadLink.setAttribute("download", downloadFileName(product.downloadFile, product.id));
         downloadLink.textContent = product.downloadLabel;
+      }
+      var downloadCopy = downloadArea && downloadArea.querySelector(".download-copy");
+      if (downloadCopy && isDirectZipDownload(product.downloadFile)) {
+        downloadCopy.textContent =
+          "You can download the Windows standalone package now. License confirmation is still emailed after payment is confirmed.";
       }
       if (form) form.hidden = true;
     }
@@ -254,7 +283,7 @@
       if (statusEl) {
         statusEl.hidden = false;
         statusEl.textContent =
-          "This product is marked as purchased in this browser. Download the package note below, or wait for your emailed link after payment is confirmed.";
+          "This product is marked as purchased in this browser. Download the standalone package below, or wait for your emailed link after payment is confirmed.";
         statusEl.classList.remove("form-status-error");
       }
       revealDownload();
@@ -457,13 +486,15 @@
       var badge = card.querySelector(".product-purchased-badge");
       if (badge) badge.hidden = false;
       var btn = card.querySelector(".product-download-btn");
-      if (btn) btn.textContent = "Continue to download";
+      if (btn && !isDirectZipDownload(btn.getAttribute("href"))) {
+        btn.textContent = "Continue to download";
+      }
     });
   }
 
   document.addEventListener("DOMContentLoaded", function () {
     var grid = document.querySelector(".product-grid");
-    if (grid) {
+    if (grid && !grid.querySelector("[data-product-id]")) {
       setProductsGridMessage(grid, "Loading products…");
     }
     var purchaseRoot = document.getElementById("purchase-root");
