@@ -40,8 +40,8 @@ See `/workspace/mun-cyber/DEPLOY-AUTH.md` for details.
 | Home | `index.html` | Hero, mission, services teaser, **products teaser**, AI/innovation teaser, CTA → Contact |
 | Services | `services.html` | Full core capabilities + **Request service** → form |
 | Service request | `service-request.html` | Request form + **payment modal** (Stripe Checkout when configured) |
-| Products | `products.html` | Catalog: **AI-Powered SOC Assistant**, **Mun Cyber Eye** — Download → purchase |
-| Purchase | `purchase.html` | Order form for `?product=…`; mailto + localStorage purchase mark; download stub |
+| Products | `products.html` | Catalog: **AI-Powered SOC Assistant**, **Mun Cyber Eye** — primary Download is a GitHub Releases zip; License / purchase still records an order |
+| Purchase | `purchase.html` | Order form for `?product=…`; mailto + localStorage purchase mark; post-purchase zip download |
 | Sign up | `signup.html` | Create / sign in account (Worker API + HTTP-only session cookie) |
 | About | `about.html` | About MUN Cyber + 4-step approach |
 | Contact | `contact.html` | Conversation CTA + mailto contact form (`info@muncyber.com`) |
@@ -76,14 +76,16 @@ improved/
 
 Repo root also has `src/worker.js`, `migrations/`, and `wrangler.toml`.
 
-## Products & purchase (demo)
+## Products & purchase
 
-1. On **Products**, each card’s primary **Download** button goes to `purchase.html?product=ai-soc-assistant` or `purchase.html?product=mun-cyber-eye`.
-2. **Purchase** shows product name, summary, custom license copy, and buyer fields (name, email, organization).
-3. **Complete purchase** validates the form, saves an order via `POST /api/orders`, opens a structured `mailto:` backup to `info@muncyber.com`, and marks that product as purchased in `localStorage` for this browser.
-4. Buyer fields are prefilled from `GET /api/me` when you are signed in.
-5. A **Download** area then appears with a demo `.txt` package note. Live card payments can be wired to Stripe later — **no fake card charge**.
-6. Pricing UI uses **Custom license** / “License — contact for pricing”.
+1. On **Products**, each card’s primary **Download** button is a GitHub Releases Windows standalone zip (`AI-Powered SOC Assistant` and `Mun Cyber Eye`).
+2. **License / purchase** still goes to `purchase.html?product=ai-soc-assistant` or `purchase.html?product=mun-cyber-eye`.
+3. **Purchase** shows product name, summary, custom license copy, and buyer fields (name, email, organization).
+4. **Complete purchase** validates the form, saves an order via `POST /api/orders`, opens a structured `mailto:` backup to `info@muncyber.com`, and marks that product as purchased in `localStorage` for this browser.
+5. Buyer fields are prefilled from `GET /api/me` when you are signed in.
+6. After purchase, the **Download** area links the same GitHub standalone zip (not a demo stub note). Live card payments can be wired to Stripe later — **no fake card charge**.
+7. Pricing UI uses **Custom license** / “License — contact for pricing”.
+8. **Mun Cyber Eye** is a local install: cameras for detection, uploads for training, and create the first admin account (no default password).
 
 ## Sign up / sign in
 

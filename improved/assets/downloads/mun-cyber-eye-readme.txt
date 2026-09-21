@@ -1,13 +1,14 @@
 MUN Cyber Technologies — Mun Cyber Eye
-======================================
 
-What it does:
-Camera-based detection for criminal activity such as fights
-and shootings. Reports instantly to security agencies, police,
-homeowners, and schools.
+Windows standalone
+------------------
+Download: https://github.com/ataallan/mun-cyber-eye/releases/download/v0.16.0/mun-cyber-eye-standalone.zip
 
-This is a demo package stub for the static marketing site.
-Your licensed download link will be emailed after payment
-is confirmed.
+Local install:
+1. Unzip the folder and run the Windows standalone package
+2. Use cameras for detection
+3. Use uploads for training
+4. Create the first admin account — there is no default password
 
-Contact: info@muncyber.com
+Commercial licensing: use License / purchase on https://www.muncyber.com/products.html
+or contact Mun Cyber Technologies.
