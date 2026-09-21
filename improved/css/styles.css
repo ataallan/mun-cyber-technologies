@@ -1228,6 +1228,14 @@ a.product-card:focus-visible {
   margin-top: auto;
 }
 
+.product-demo-note {
+  flex: 1 0 100%;
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--muted-2);
+}
+
 .products-footnote {
   margin-top: 28px;
   color: #7a8fa5;
