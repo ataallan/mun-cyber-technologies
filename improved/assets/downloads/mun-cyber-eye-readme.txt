@@ -2,7 +2,7 @@ MUN Cyber Technologies — Mun Cyber Eye
 
 Windows standalone
 ------------------
-Download: https://github.com/ataallan/mun-cyber-eye/releases/download/v0.16.0/mun-cyber-eye-standalone.zip
+Download: assets/downloads/mun-cyber-eye-standalone.zip
 
 Local install:
 1. Unzip the folder and run the Windows standalone package

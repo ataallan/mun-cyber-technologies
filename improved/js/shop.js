@@ -10,7 +10,7 @@
   var SOC_STANDALONE_ZIP =
     "https://github.com/ataallan/soc-assistant/releases/download/v1.0.0-standalone/AI-Powered-SOC-Assistant-standalone.zip";
   var EYE_STANDALONE_ZIP =
-    "https://github.com/ataallan/mun-cyber-eye/releases/download/v0.16.0/mun-cyber-eye-standalone.zip";
+    "assets/downloads/mun-cyber-eye-standalone.zip";
 
   var STATIC_PRODUCTS = {
     "ai-soc-assistant": {
