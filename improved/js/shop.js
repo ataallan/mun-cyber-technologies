@@ -11,6 +11,7 @@
     "https://github.com/ataallan/soc-assistant/releases/download/v1.0.0-standalone/AI-Powered-SOC-Assistant-standalone.zip";
   var EYE_STANDALONE_ZIP =
     "assets/downloads/mun-cyber-eye-standalone.zip";
+  var EYE_LIVE_DEMO_URL = "https://eye.muncyber.com";
 
   var STATIC_PRODUCTS = {
     "ai-soc-assistant": {
@@ -110,6 +111,24 @@
     return /^https?:\/\//i.test(url || "") && /\.zip(\?|#|$)/i.test(url);
   }
 
+  function isEyeZipDownload(slug, url) {
+    return slug === "mun-cyber-eye" && /\.zip(\?|#|$)/i.test(url || "");
+  }
+
+  function liveDemoButton(slug) {
+    if (slug !== "mun-cyber-eye") return "";
+    return (
+      '<a class="button secondary" href="' +
+      EYE_LIVE_DEMO_URL +
+      '" target="_blank" rel="noopener noreferrer">Open live demo</a>'
+    );
+  }
+
+  function liveDemoNote(slug) {
+    if (slug !== "mun-cyber-eye") return "";
+    return '<p class="product-demo-note">The live demo may be offline when the demo PC is off.</p>';
+  }
+
   function downloadFileName(url, fallbackId) {
     var path = String(url || "").split("?")[0].split("#")[0];
     var name = path.split("/").pop();
@@ -197,19 +216,22 @@
       "</span>" +
       "</div>" +
       '<div class="product-actions">' +
-      (isDirectZipDownload(p.downloadFile)
+      (isDirectZipDownload(p.downloadFile) || isEyeZipDownload(p.slug, p.downloadFile)
         ? '<a class="button primary product-download-btn" href="' +
           escapeHtml(p.downloadFile) +
           '" download>' +
           escapeHtml(p.downloadLabel || "Download " + (p.name || "")) +
           "</a>" +
+          liveDemoButton(p.slug) +
           '<a class="button secondary" href="purchase.html?product=' +
           encodeURIComponent(p.slug) +
           '">License / purchase</a>'
         : '<a class="button primary product-download-btn" href="purchase.html?product=' +
           encodeURIComponent(p.slug) +
           '">Download</a>' +
+          liveDemoButton(p.slug) +
           '<a class="button secondary" href="contact.html">Ask about licensing</a>') +
+      liveDemoNote(p.slug) +
       "</div>" +
       "</article>"
     );
