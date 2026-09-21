@@ -12,6 +12,11 @@
   var EYE_STANDALONE_ZIP =
     "assets/downloads/mun-cyber-eye-standalone.zip";
   var EYE_LIVE_DEMO_URL = "https://eye.muncyber.com";
+  var SOC_LIVE_DEMO_URL = "https://soc.muncyber.com";
+  var LIVE_DEMO_URLS = {
+    "ai-soc-assistant": SOC_LIVE_DEMO_URL,
+    "mun-cyber-eye": EYE_LIVE_DEMO_URL,
+  };
 
   var STATIC_PRODUCTS = {
     "ai-soc-assistant": {
@@ -116,16 +121,17 @@
   }
 
   function liveDemoButton(slug) {
-    if (slug !== "mun-cyber-eye") return "";
+    var url = LIVE_DEMO_URLS[slug];
+    if (!url) return "";
     return (
       '<a class="button secondary" href="' +
-      EYE_LIVE_DEMO_URL +
+      url +
       '" target="_blank" rel="noopener noreferrer">Open live demo</a>'
     );
   }
 
   function liveDemoNote(slug) {
-    if (slug !== "mun-cyber-eye") return "";
+    if (!LIVE_DEMO_URLS[slug]) return "";
     return '<p class="product-demo-note">The live demo may be offline when the demo PC is off.</p>';
   }
 
