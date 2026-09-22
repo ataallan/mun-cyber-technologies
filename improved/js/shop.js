@@ -23,12 +23,11 @@
       id: "ai-soc-assistant",
       slug: "ai-soc-assistant",
       name: "AI-Powered SOC Assistant",
-      summary:
-        "Helps security teams reduce false-positive alerts so analysts can focus on real threats. Supports professionals; does not replace them.",
+      summary: "Cuts false positives so analysts focus on real alerts.",
       points: [
-        "Reduces false-positive alerts",
-        "Helps analysts focus on real threats",
-        "Supports SOC workflows without replacing people",
+        "Fewer false-positive alerts",
+        "Faster triage for real threats",
+        "Supports SOC teams",
       ],
       price_label: "Custom license",
       price_note: "License — contact for pricing",
@@ -41,11 +40,11 @@
       slug: "mun-cyber-eye",
       name: "Mun Cyber Eye",
       summary:
-        "Camera system that detects criminal activity such as fights and shootings, and reports instantly to security agencies, police, homeowners, and schools.",
+        "Detects fights, shootings, and related threats, then alerts the right people.",
       points: [
-        "Detects fights, shootings, and related threats on camera",
-        "Instant alerts to security agencies and police",
-        "Also notifies homeowners and schools",
+        "Camera detection of fights and shootings",
+        "Instant alerts to police and security",
+        "Notifications for homes and schools",
       ],
       price_label: "Custom license",
       price_note: "License — contact for pricing",
@@ -300,9 +299,8 @@
         downloadLink.textContent = product.downloadLabel;
       }
       var downloadCopy = downloadArea && downloadArea.querySelector(".download-copy");
-      if (downloadCopy && isDirectZipDownload(product.downloadFile)) {
-        downloadCopy.textContent =
-          "You can download the Windows standalone package now. License confirmation is still emailed after payment is confirmed.";
+      if (downloadCopy) {
+        downloadCopy.textContent = "Your download is ready.";
       }
       if (form) form.hidden = true;
     }
@@ -310,8 +308,7 @@
     if (isPurchased(productId)) {
       if (statusEl) {
         statusEl.hidden = false;
-        statusEl.textContent =
-          "This product is marked as purchased in this browser. Download the standalone package below, or wait for your emailed link after payment is confirmed.";
+        statusEl.textContent = "Your license request is on file. Download below.";
         statusEl.classList.remove("form-status-error");
       }
       revealDownload();
@@ -404,23 +401,20 @@
               "Note: " + (note || "(none)"),
               "",
               result.ok && result.data && result.data.order
-                ? "Order ID (saved): " + result.data.order.id
-                : "Order may not have been saved to the server; this email is the backup.",
-              "Live card payments are not processed on this page; Stripe can be wired later.",
+                ? "Order ID: " + result.data.order.id
+                : "Order may not have been saved; this email is the request.",
             ]);
 
             if (statusEl) {
               statusEl.hidden = false;
               if (result.ok) {
                 statusEl.classList.remove("form-status-error");
-                statusEl.textContent =
-                  "Order saved. Opening your email client as a secondary notice… Live card payment is not charged here.";
+                statusEl.textContent = "Order received. Opening your email…";
               } else {
                 statusEl.classList.add("form-status-error");
                 statusEl.textContent =
-                  ((result.data && result.data.error) ||
-                    "Could not save order to the server.") +
-                  " Opening email as backup…";
+                  ((result.data && result.data.error) || "Could not save the order.") +
+                  " Opening your email…";
               }
             }
 
@@ -439,8 +433,7 @@
             if (statusEl) {
               statusEl.hidden = false;
               statusEl.classList.add("form-status-error");
-              statusEl.textContent =
-                "Network error saving order. Opening email as backup…";
+              statusEl.textContent = "Network error. Opening your email…";
             }
             revealDownload();
             var subject = encodeURIComponent("Product order: " + product.name);
