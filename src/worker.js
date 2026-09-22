@@ -2264,13 +2264,13 @@ function generateChatReply(userText, thread, opts) {
     return "We apply AI to security operations \u2014 reducing noise and speeding triage while keeping humans in control. See AI for security ops under Services, and our products AI-Powered SOC Assistant and Mun Cyber Eye under Products.";
   }
   if (/soc assistant|false positive|analyst/.test(t)) {
-    return "AI-Powered SOC Assistant helps security teams cut false positives so analysts focus on real alerts. It supports professionals; it does not replace them. Download the Windows standalone zip on Products, or use License / purchase for a commercial order request.";
+    return "AI-Powered SOC Assistant cuts false positives so analysts focus on real alerts. Download it or request a license on the Products page.";
   }
   if (/cyber eye|camera|shooting|fight|surveillance|detection/.test(t)) {
-    return "Mun Cyber Eye is a local Windows install for camera-based detection of fights, shootings, and related threats. Use cameras for detection and uploads for training. Create the first admin account \u2014 there is no default password. Download the standalone zip on Products, or ask here and we will connect you.";
+    return "Mun Cyber Eye detects fights, shootings, and related threats on camera and alerts security teams, police, homeowners, and schools. Download it or open the live demo on the Products page.";
   }
   if (/product|license|pricing|buy|purchase|download/.test(t)) {
-    return "Our products are AI-Powered SOC Assistant and Mun Cyber Eye. Both have Windows standalone downloads on Products. Pricing is often custom license \u2014 use License / purchase, chat here, or email info@muncyber.com for a tailored quote.";
+    return "AI-Powered SOC Assistant and Mun Cyber Eye are on the Products page. Download, open the live demo, or request a custom license. You can also email info@muncyber.com.";
   }
   if (/contact|email|phone|reach/.test(t) && !wantsHumanHandoff(userText, null)) {
     return "You can email info@muncyber.com anytime, or use the Contact page. Conversations here are saved so the Mun Cyber Team can review them. Share your name and best email if you want a direct follow-up, or use Connect me to the Mun Cyber Team.";
