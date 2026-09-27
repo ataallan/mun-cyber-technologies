@@ -2243,7 +2243,10 @@ function generateChatReply(userText, thread, opts) {
     return "You're already connected with the Mun Cyber Team on this thread. They will follow up from info@muncyber.com; you can keep adding details here.";
   }
   if (/(hello|hi\b|hey|good (morning|afternoon|evening))/.test(t) && t.length < 40) {
-    return "Hello! Welcome to MC Chat Bot. I can help with cybersecurity awareness, software development, defensive systems, AI for security ops, and our products (AI-Powered SOC Assistant and Mun Cyber Eye). What are you looking for?";
+    return "Hello! Welcome to MC Chat Bot. I can help with cybersecurity awareness, software development, defensive systems, AI for security ops, and our products (AI-Powered SOC Assistant, Mun Cyber Eye, and T-Marriage). What are you looking for?";
+  }
+  if (/t[\s-]?marriage|tmarriage|dating|marriage|matchmaking/.test(t)) {
+    return "T-Marriage is a marriage-focused dating app by Mun Cyber Technologies, Inc. \u2014 Love with purpose, marriage with Tradition. It offers selfie-verified profiles, optional mutual ID verification per match, nearby search by ZIP (approximate distance only), chat with voice and video calls, report and block with admin moderation, and Find friends. It is live on the web at https://tmarriage.com; the iPhone app is coming.";
   }
   if (/sign[\s-]?in|log[\s-]?in|account|sign[\s-]?up|register/.test(t)) {
     return "You can create an account or sign in at signup.html on this site. Admins use MFA. If you hit a snag, email info@muncyber.com and the team can help.";
@@ -2270,7 +2273,7 @@ function generateChatReply(userText, thread, opts) {
     return "Mun Cyber Eye detects fights, shootings, and related threats on camera and alerts security teams, police, homeowners, and schools. Download it or open the live demo on the Products page.";
   }
   if (/product|license|pricing|buy|purchase|download/.test(t)) {
-    return "AI-Powered SOC Assistant and Mun Cyber Eye are on the Products page. Download, open the live demo, or request a custom license. You can also email info@muncyber.com.";
+    return "AI-Powered SOC Assistant and Mun Cyber Eye are on the Products page. Download, open the live demo, or request a custom license. T-Marriage, our marriage-focused dating app, is live at https://tmarriage.com. You can also email info@muncyber.com.";
   }
   if (/contact|email|phone|reach/.test(t) && !wantsHumanHandoff(userText, null)) {
     return "You can email info@muncyber.com anytime, or use the Contact page. Conversations here are saved so the Mun Cyber Team can review them. Share your name and best email if you want a direct follow-up, or use Connect me to the Mun Cyber Team.";
@@ -2291,7 +2294,7 @@ function generateChatReply(userText, thread, opts) {
   if (hasLead) {
     return "Thanks \u2014 I have your contact on this thread. I noted your message for the Mun Cyber Team; a human may follow up from info@muncyber.com. Meanwhile I can still answer questions about services and products.";
   }
-  return "I am not fully sure on that one. I can help with awareness training, software development, defensive systems, AI for security ops, AI-Powered SOC Assistant, Mun Cyber Eye, sign-in, and how to request a service. Or use Connect me to the Mun Cyber Team for a human follow-up from info@muncyber.com.";
+  return "I am not fully sure on that one. I can help with awareness training, software development, defensive systems, AI for security ops, AI-Powered SOC Assistant, Mun Cyber Eye, T-Marriage, sign-in, and how to request a service. Or use Connect me to the Mun Cyber Team for a human follow-up from info@muncyber.com.";
 }
 function parseVisitorNameFromText(text) {
   const s = String(text || "").trim();
