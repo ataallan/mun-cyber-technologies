@@ -8,9 +8,9 @@
   var CONTACT_EMAIL = "info@muncyber.com";
   var PURCHASES_KEY = "munCyberPurchases";
   var SOC_STANDALONE_ZIP =
-    "https://github.com/ataallan/soc-assistant/releases/download/v1.0.0-standalone/AI-Powered-SOC-Assistant-standalone.zip";
+    "https://github.com/ataallan/soc-assistant/releases/download/v1.1.0-setup/AIPoweredSOCAssistantSetup.exe";
   var EYE_STANDALONE_ZIP =
-    "assets/downloads/mun-cyber-eye-standalone.zip";
+    "https://github.com/ataallan/mun-cyber-eye/releases/download/v1.0.0/MunCyberEyeSetup.exe";
   var EYE_LIVE_DEMO_URL = "https://eye.muncyber.com";
   var SOC_LIVE_DEMO_URL = "https://soc.muncyber.com";
   var LIVE_DEMO_URLS = {
@@ -112,11 +112,17 @@
   }
 
   function isDirectZipDownload(url) {
-    return /^https?:\/\//i.test(url || "") && /\.zip(\?|#|$)/i.test(url);
+    return (
+      /^https?:\/\//i.test(url || "") &&
+      /\.(zip|exe)(\?|#|$)/i.test(url)
+    );
   }
 
   function isEyeZipDownload(slug, url) {
-    return slug === "mun-cyber-eye" && /\.zip(\?|#|$)/i.test(url || "");
+    return (
+      slug === "mun-cyber-eye" &&
+      /\.(zip|exe)(\?|#|$)/i.test(url || "")
+    );
   }
 
   function liveDemoButton(slug) {
@@ -473,8 +479,16 @@
     var apiDriven = slugs.some(function (s) {
       return PRODUCTS[s] && PRODUCTS[s].db_id;
     });
+    // Static, non-D1 cards (e.g. T-Marriage web app) have no price or purchase flow;
+    // preserve them when the grid is re-rendered from /api/products.
+    var staticCards = Array.prototype.slice
+      .call(grid.querySelectorAll("[data-static-product]"))
+      .map(function (el) {
+        return el.outerHTML;
+      })
+      .join("");
     if (apiDriven) {
-      if (!slugs.length) {
+      if (!slugs.length && !staticCards) {
         setProductsGridMessage(grid, "No products are available right now. Check back soon or contact us.");
         return;
       }
@@ -482,7 +496,7 @@
       slugs.forEach(function (slug, i) {
         html += renderProductCard(PRODUCTS[slug], i === 0);
       });
-      grid.innerHTML = html;
+      grid.innerHTML = html + staticCards;
     } else if (!grid.querySelector("[data-product-id]")) {
       setProductsGridMessage(grid, "No products are available right now. Check back soon or contact us.");
       return;

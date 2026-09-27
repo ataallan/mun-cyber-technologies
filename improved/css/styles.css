@@ -1236,6 +1236,61 @@ a.product-card:focus-visible {
   color: var(--muted-2);
 }
 
+/* T-Marriage (static web-app card; brand wine #8e1836 / #6c1028, gold #b8893b) */
+.product-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 132px;
+  height: 108px;
+  margin: 0 0 16px;
+  border-radius: var(--radius-lg);
+}
+
+.product-logo img {
+  display: block;
+  width: 110px;
+  height: auto;
+}
+
+.teaser-grid .product-logo {
+  margin-top: 14px;
+}
+
+.product-logo-tmarriage {
+  background: #fbf6ee;
+  border: 1px solid rgba(184, 137, 59, 0.55);
+}
+
+.product-card-tmarriage .product-tag {
+  color: #e3bf7f;
+  border-color: rgba(184, 137, 59, 0.6);
+  background: rgba(142, 24, 54, 0.35);
+}
+
+.product-card-tmarriage:hover {
+  border-color: rgba(184, 137, 59, 0.5);
+}
+
+.product-slogan {
+  margin: -4px 0 10px;
+  font-size: 0.95rem;
+  font-style: italic;
+  font-weight: 600;
+  color: #d9b36f;
+}
+
+.product-card-tmarriage .button.primary {
+  background: linear-gradient(135deg, #8e1836, #6c1028);
+  border-color: #b8893b;
+  color: #fff;
+}
+
+.product-card-tmarriage .button.primary:hover {
+  background: linear-gradient(135deg, #a01d3e, #7a1330);
+  color: #fff;
+}
+
 .products-footnote {
   margin-top: 28px;
   color: #7a8fa5;

@@ -1,14 +1,9 @@
-MUN Cyber Technologies — Mun Cyber Eye
+Mun Cyber Eye
 
-Windows standalone
-------------------
-Download: assets/downloads/mun-cyber-eye-standalone.zip
+Windows Setup
 
-Local install:
-1. Unzip the folder and run the Windows standalone package
-2. Use cameras for detection
-3. Use uploads for training
-4. Create the first admin account — there is no default password
+Download: https://github.com/ataallan/mun-cyber-eye/releases/download/v1.0.0/MunCyberEyeSetup.exe
 
-Commercial licensing: use License / purchase on https://www.muncyber.com/products.html
-or contact Mun Cyber Technologies.
+1. Run MunCyberEyeSetup.exe
+2. Use the Desktop icon Mun Cyber Eye
+3. Create the first admin account (no default password)
